@@ -6,8 +6,8 @@ import config
 class dbConfig (object):
 
     def __init__(self):
-        self.conn_string = config.MONGO_URI
-        self.database = config.DATABASE        
+        self.conn_string = st.secrets.database.MONGO_URI
+        self.database = st.secrets.database.DATABASE        
         pass
 
     def validar_query(self, dicionario:dict, chaves_obrigatorias:list) -> bool:
@@ -159,8 +159,8 @@ class dbConfig (object):
                   "year": year }
         fields = {"year":1, "month":1, "_id":0}
         try:
-            client = db.MongoClient(config.MONGO_URI)
-            database = client.get_database(config.DATABASE)
+            client = db.MongoClient(_self.conn_string)
+            database = client.get_database(_self.database)
             col_results = database.get_collection("kpi_results")    
             find_results = col_results.find(query,fields)
             results = find_results.to_list()

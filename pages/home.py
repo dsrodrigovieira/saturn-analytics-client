@@ -28,7 +28,6 @@ with st.empty():
             st.info("Selecione a empresa e o ano", icon="ℹ️")
         else:
             organization_cnes = re.search(r"\d+",filter_organization).group()
-            st.toast(f"{filter_year}, {organization_cnes}")
             with st.spinner(text="Carregando..."):
                 raw_metrics, raw_results = db.get_summary(organization_cnes=int(organization_cnes),year=int(filter_year))
                 historico = app.monta_historico(raw_metrics,raw_results)
