@@ -7,9 +7,14 @@ app = App()
 db = dbConfig()
 
 st.title("Envio de métricas")
+btn_dic_dados = st.button("Dicionário de dados")
 uploaded_file = st.file_uploader( label="Selecione o arquivo",
                                   type='csv',
                                   help="Insira um arquivo no formato CSV para upload" )
+
+if "download_csv_file" not in st.session_state:
+    if btn_dic_dados:
+        app.download_csv_file()
 
 if uploaded_file:
     validacao, dados = app.valida_arquivo(arquivo=uploaded_file)

@@ -9,10 +9,8 @@ app = App()
 
 with st.container():    
     st.title("Consolidação de Indicadores")
-    #st.write(":ringed_planet: Saturn Analytics")
 
 with st.container():
-    #st.subheader("Configuração")   
     box_organization = st.selectbox( placeholder="Selecione a empresa",
                                      label="Empresa:",
                                      options=db.get_organizations("organizations"),

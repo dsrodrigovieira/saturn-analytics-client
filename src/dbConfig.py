@@ -87,29 +87,18 @@ class dbConfig (object):
             last_consolidation = collection.find(query,fields).sort(sorting)
             year_month = last_consolidation.to_list()[0]
             client.close()
+        except IndexError:
+            return None
         except Exception as e:
-            raise Exception("Unable to retrieve the document due to the following error: ", e)
+            raise Exception("Unable to retrieve the document due to the following error: ", e) 
         return year_month        
 
     def load_data(self, collection_name:str, query:dict) -> bool:
         chaves_obrigatorias = [
-            'organization_cnes', 'year', 'month', 'rkpi1', 'rkpi2_clinico',
-            'rkpi2_cirurgico', 'rkpi2_geral', 'rkpi3', 'rkpi4_cli_neo_precoce',
-            'rkpi4_cli_neo_tardio', 'rkpi4_cli_pedi', 'rkpi4_cli_ad', 'rkpi4_cli_idoso',
-            'rkpi4_cir_neo_precoce', 'rkpi4_cir_neo_tardio', 'rkpi4_cir_pedi',
-            'rkpi4_cir_ad', 'rkpi4_cir_idoso', 'rkpi4_clinico', 'rkpi4_cirurgico',
-            'rkpi4_neo_precoce', 'rkpi4_neo_tardio', 'rkpi4_pedi', 'rkpi4_ad',
-            'rkpi4_idoso', 'rkpi4_geral', 'rkpi5_cli_pedi', 'rkpi5_cli_ad', 
-            'rkpi5_cli_idoso', 'rkpi5_cir_pedi', 'rkpi5_cir_ad', 'rkpi5_cir_idoso',
-            'rkpi5_clinico', 'rkpi5_cirurgico', 'rkpi5_pedi', 'rkpi5_ad', 'rkpi5_idoso',
-            'rkpi5_geral', 'rkpi6', 'rkpi7_nvl2', 'rkpi7_nvl3', 'rkpi7_geral', 'rkpi8',
-            'rkpi9', 'rkpi10_ui_neo', 'rkpi10_ui_pedi', 'rkpi10_ui_ad', 'rkpi10_uti_neo',
-            'rkpi10_uti_pedi', 'rkpi10_uti_ad', 'rkpi10_neo', 'rkpi10_pedi', 'rkpi10_ad',
-            'rkpi10_ui', 'rkpi10_uti', 'rkpi10_geral', 'rkpi11_ui_neo', 'rkpi11_ui_pedi',
-            'rkpi11_ui_ad', 'rkpi11_uti_neo', 'rkpi11_uti_pedi', 'rkpi11_uti_ad',
-            'rkpi11_neo', 'rkpi11_pedi', 'rkpi11_ad', 'rkpi11_ui', 'rkpi11_uti',
-            'rkpi11_geral', 'rkpi12_cir_orto', 'rkpi12_cir_n_orto', 'rkpi12_cirurgico',
-            'rkpi12_geral', 'rkpi13', 'rkpi14'
+            'organization_cnes', 'year', 'month',
+            'rkpi_1', 'rkpi_2', 'rkpi_3', 'rkpi_4', 'rkpi_5',
+            'rkpi_6', 'rkpi_7', 'rkpi_8', 'rkpi_9', 'rkpi_10',
+            'rkpi_11', 'rkpi_12', 'rkpi_13', 'rkpi_14'
         ]
         # Validar existência dos parâmetros
         if not collection_name or not query:

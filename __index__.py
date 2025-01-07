@@ -7,11 +7,11 @@ pages = {
                  title="Início",
                  icon=config.ICON_PAGE_HOME
                 ),
-        st.Page( page="pages/envio_metricas.py",
+        st.Page( page="pages/envioMetricas.py",
                  title="Envio de Métricas",
                  icon=config.ICON_PAGE_ENVIO_METRICAS
                 ),                
-        st.Page( page="pages/consolidacao_indicadores.py",
+        st.Page( page="pages/consolidacao.py",
                  title="Consolidação de Indicadores",
                  icon=config.ICON_PAGE_CONSOLIDACAO
                 ),

@@ -1,70 +1,80 @@
+import re
+
 class KPI(object):
 
     def __init__ ( self ):
-        self.rkpi2_clinico = None
-        self.rkpi2_cirurgico = None
-        self.rkpi2_geral = None
-        self.rkpi4_cli_neo_precoce = None
-        self.rkpi4_cli_neo_tardio = None
-        self.rkpi4_cli_pedi = None
-        self.rkpi4_cli_ad = None
-        self.rkpi4_cli_idoso = None
-        self.rkpi4_cir_neo_precoce = None
-        self.rkpi4_cir_neo_tardio = None
-        self.rkpi4_cir_pedi = None
-        self.rkpi4_cir_ad = None
-        self.rkpi4_cir_idoso = None
-        self.rkpi4_clinico = None
-        self.rkpi4_cirurgico = None
-        self.rkpi4_neo_precoce = None
-        self.rkpi4_neo_tardio = None
-        self.rkpi4_pedi = None
-        self.rkpi4_ad = None
-        self.rkpi4_idoso = None
-        self.rkpi4_geral = None
-        self.rkpi5_cli_pedi = None
-        self.rkpi5_cli_ad = None
-        self.rkpi5_cli_idoso = None
-        self.rkpi5_cir_pedi = None
-        self.rkpi5_cir_ad = None
-        self.rkpi5_cir_idoso = None
-        self.rkpi5_clinico = None
-        self.rkpi5_cirurgico = None
-        self.rkpi5_pedi = None
-        self.rkpi5_ad = None
-        self.rkpi5_idoso = None
-        self.rkpi5_geral = None
-        self.rkpi7_nvl2 = None
-        self.rkpi7_nvl3 = None
-        self.rkpi7_geral = None
-        self.rkpi10_ui_neo = None
-        self.rkpi10_ui_pedi = None
-        self.rkpi10_ui_ad = None
-        self.rkpi10_uti_neo = None
-        self.rkpi10_uti_pedi = None
-        self.rkpi10_uti_ad = None
-        self.rkpi10_neo = None
-        self.rkpi10_pedi = None
-        self.rkpi10_ad = None
-        self.rkpi10_ui = None
-        self.rkpi10_uti = None
-        self.rkpi10_geral = None
-        self.rkpi11_ui_neo = None
-        self.rkpi11_ui_pedi = None
-        self.rkpi11_ui_ad = None
-        self.rkpi11_uti_neo = None
-        self.rkpi11_uti_pedi = None
-        self.rkpi11_uti_ad = None
-        self.rkpi11_neo = None
-        self.rkpi11_pedi = None
-        self.rkpi11_ad = None
-        self.rkpi11_ui = None
-        self.rkpi11_uti = None
-        self.rkpi11_geral = None
-        self.rkpi12_cir_orto = None
-        self.rkpi12_cir_n_orto = None
-        self.rkpi12_cirurgico = None
-        self.rkpi12_geral = None
+        self.rkpi_1 = None
+        self.rkpi_2_clinico = None
+        self.rkpi_2_cirurgico = None
+        self.rkpi_2 = None
+        self.rkpi_3 = None
+        self.rkpi_4_cli_neo_precoce = None
+        self.rkpi_4_cli_neo_tardio = None
+        self.rkpi_4_cli_pedi = None
+        self.rkpi_4_cli_ad = None
+        self.rkpi_4_cli_idoso = None
+        self.rkpi_4_cir_neo_precoce = None
+        self.rkpi_4_cir_neo_tardio = None
+        self.rkpi_4_cir_pedi = None
+        self.rkpi_4_cir_ad = None
+        self.rkpi_4_cir_idoso = None
+        self.rkpi_4_clinico = None
+        self.rkpi_4_cirurgico = None
+        self.rkpi_4_neo_precoce = None
+        self.rkpi_4_neo_tardio = None
+        self.rkpi_4_pedi = None
+        self.rkpi_4_ad = None
+        self.rkpi_4_idoso = None
+        self.rkpi_4 = None
+        self.rkpi_5_cli_pedi = None
+        self.rkpi_5_cli_ad = None
+        self.rkpi_5_cli_idoso = None
+        self.rkpi_5_cir_pedi = None
+        self.rkpi_5_cir_ad = None
+        self.rkpi_5_cir_idoso = None
+        self.rkpi_5_clinico = None
+        self.rkpi_5_cirurgico = None
+        self.rkpi_5_pedi = None
+        self.rkpi_5_ad = None
+        self.rkpi_5_idoso = None
+        self.rkpi_5 = None
+        self.rkpi_6 = None
+        self.rkpi_7_nvl2 = None
+        self.rkpi_7_nvl3 = None
+        self.rkpi_7 = None
+        self.rkpi_8 = None
+        self.rkpi_9 = None
+        self.rkpi_10_ui_neo = None
+        self.rkpi_10_ui_pedi = None
+        self.rkpi_10_ui_ad = None
+        self.rkpi_10_uti_neo = None
+        self.rkpi_10_uti_pedi = None
+        self.rkpi_10_uti_ad = None
+        self.rkpi_10_neo = None
+        self.rkpi_10_pedi = None
+        self.rkpi_10_ad = None
+        self.rkpi_10_ui = None
+        self.rkpi_10_uti = None
+        self.rkpi_10 = None
+        self.rkpi_11_ui_neo = None
+        self.rkpi_11_ui_pedi = None
+        self.rkpi_11_ui_ad = None
+        self.rkpi_11_uti_neo = None
+        self.rkpi_11_uti_pedi = None
+        self.rkpi_11_uti_ad = None
+        self.rkpi_11_neo = None
+        self.rkpi_11_pedi = None
+        self.rkpi_11_ad = None
+        self.rkpi_11_ui = None
+        self.rkpi_11_uti = None
+        self.rkpi_11 = None
+        self.rkpi_12_cir_orto = None
+        self.rkpi_12_cir_n_orto = None
+        self.rkpi_12_cirurgico = None
+        self.rkpi_12 = None
+        self.rkpi_13 = None
+        self.rkpi_14 = None
+        self.rkpi_data = None
         pass
 
     def validar_kwargs(self, kwargs, chaves_obrigatorias):
@@ -85,9 +95,29 @@ class KPI(object):
         # Retornar True se tudo estiver válido
         return True
     
-    def cria_dict(self, mascara:str) -> dict:
+    def cria_variavel(self, mascara:str) -> dict:
+        #self.rkpi_data = {name: value for name, value in self.__dict__.items() if name.startswith(mascara)}
         return {name: value for name, value in self.__dict__.items() if name.startswith(mascara)}
-        
+
+    def cria_estratificacao(self, mascara:str) -> dict:
+        rkpi_data = self.cria_variavel(mascara)
+        nome = re.match("^.+_\\d+", list(rkpi_data.keys())[0]).group(0)
+        estratificacao = []
+
+        if type(rkpi_data) in [float, int]:
+            pass
+        else:
+            for key in rkpi_data.keys():
+                if key!=nome:
+                    estratificacao.append({ "type": key.replace(nome+'_',''), "value": rkpi_data[nome] })
+                else:
+                    break
+        return rkpi_data, nome, estratificacao
+    
+    def cria_objeto(self, mascara:str) -> dict:
+        rkpi_data, nome, estratificacao = self.cria_estratificacao(mascara)
+        return { nome: { "value": rkpi_data[nome], "estratification": estratificacao } }
+
     def kpi_taxa(self, numerador:int,denominador:int) -> float:
         return (numerador/denominador) *100
 
@@ -97,14 +127,15 @@ class KPI(object):
     def kpi_densidade(self, numerador:int,denominador:int) -> float:
         return (numerador/denominador) *1000
     
-    def kpi1(self, **kwargs) -> float:
+    def kpi1(self, **kwargs) -> dict:
         # 1. Proporção de partos vaginais 
         chaves_obrigatorias = ['total_partos_vaginais','total_partos_cesareos']
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
             # Calcular o KPI
             total_partos = kwargs['total_partos_vaginais'] + kwargs['total_partos_cesareos']            
-            return self.kpi_taxa( numerador = kwargs['total_partos_vaginais'],
-                                  denominador = total_partos )
+            self.rkpi_1 = self.kpi_taxa( numerador = kwargs['total_partos_vaginais'],
+                                         denominador = total_partos )
+            return self.cria_objeto('rkpi_1')
         else:
             return None
     
@@ -117,23 +148,24 @@ class KPI(object):
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):                
             total_reinternacoes_ate_30_dias = kwargs['cli_total_reinternacoes_30_dias']+kwargs['cir_total_reinternacoes_30_dias']
             total_saidas_mes_anterior = kwargs['cli_total_saida_mes_anterior']+kwargs['cir_total_saida_mes_anterior']
-            self.rkpi2_clinico = self.kpi_taxa( numerador = kwargs['cli_total_reinternacoes_30_dias'],
+            self.rkpi_2_clinico = self.kpi_taxa( numerador = kwargs['cli_total_reinternacoes_30_dias'],
                                          denominador = kwargs['cli_total_saida_mes_anterior'])
-            self.rkpi2_cirurgico = self.kpi_taxa( numerador = kwargs['cir_total_reinternacoes_30_dias'],
+            self.rkpi_2_cirurgico = self.kpi_taxa( numerador = kwargs['cir_total_reinternacoes_30_dias'],
                                            denominador = kwargs['cir_total_saida_mes_anterior'])
-            self.rkpi2_geral = self.kpi_taxa( numerador = total_reinternacoes_ate_30_dias,
+            self.rkpi_2 = self.kpi_taxa( numerador = total_reinternacoes_ate_30_dias,
                                        denominador = total_saidas_mes_anterior )            
-            return self.cria_dict('rkpi2')
+            return self.cria_objeto('rkpi_2')
         else:
             return None
     
-    def kpi3(self, **kwargs) -> float:
+    def kpi3(self, **kwargs) -> dict:
         # 3. Taxa de parada cardiorrespiratória em unidade de internação
         chaves_obrigatorias = ['total_pcr','total_pacientes_dia']
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
             # Calcular o KPI        
-            return self.kpi_densidade( numerador = kwargs['total_pcr'],
-                                       denominador = kwargs['total_pacientes_dia'] )
+            self.rkpi_3 = self.kpi_densidade( numerador = kwargs['total_pcr'],
+                                              denominador = kwargs['total_pacientes_dia'] )
+            return self.cria_objeto('rkpi_3')
         else:
             return None        
 
@@ -170,43 +202,43 @@ class KPI(object):
             total_obitos = cli_total_obitos + cir_total_obitos
             total_saidas = cli_total_saidas + cir_total_saidas
 
-            self.rkpi4_cli_neo_precoce = self.kpi_tempo_medio( numerador = kwargs['cli_neo_precoce_total_obitos'],
+            self.rkpi_4_cli_neo_precoce = self.kpi_tempo_medio( numerador = kwargs['cli_neo_precoce_total_obitos'],
                                                           denominador = kwargs['cli_neo_precoce_total_saidas'])
-            self.rkpi4_cli_neo_tardio = self.kpi_tempo_medio( numerador = kwargs['cli_neo_tardio_total_obitos'],
+            self.rkpi_4_cli_neo_tardio = self.kpi_tempo_medio( numerador = kwargs['cli_neo_tardio_total_obitos'],
                                                          denominador = kwargs['cli_neo_tardio_total_saidas'])
-            self.rkpi4_cli_pedi = self.kpi_tempo_medio( numerador = kwargs['cli_pedi_total_obitos'],
+            self.rkpi_4_cli_pedi = self.kpi_tempo_medio( numerador = kwargs['cli_pedi_total_obitos'],
                                                    denominador = kwargs['cli_pedi_total_saidas'])
-            self.rkpi4_cli_ad = self.kpi_tempo_medio( numerador = kwargs['cli_ad_total_obitos'],
+            self.rkpi_4_cli_ad = self.kpi_tempo_medio( numerador = kwargs['cli_ad_total_obitos'],
                                                  denominador = kwargs['cli_ad_total_saidas'])
-            self.rkpi4_cli_idoso = self.kpi_tempo_medio( numerador = kwargs['cli_idoso_total_obitos'],
+            self.rkpi_4_cli_idoso = self.kpi_tempo_medio( numerador = kwargs['cli_idoso_total_obitos'],
                                                     denominador = kwargs['cli_idoso_total_saidas'])
-            self.rkpi4_cir_neo_precoce = self.kpi_tempo_medio( numerador = kwargs['cir_neo_precoce_total_obitos'],
+            self.rkpi_4_cir_neo_precoce = self.kpi_tempo_medio( numerador = kwargs['cir_neo_precoce_total_obitos'],
                                                           denominador = kwargs['cir_neo_precoce_total_saidas'])
-            self.rkpi4_cir_neo_tardio = self.kpi_tempo_medio( numerador = kwargs['cir_neo_tardio_total_obitos'],
+            self.rkpi_4_cir_neo_tardio = self.kpi_tempo_medio( numerador = kwargs['cir_neo_tardio_total_obitos'],
                                                          denominador = kwargs['cir_neo_tardio_total_saidas'])
-            self.rkpi4_cir_pedi = self.kpi_tempo_medio( numerador = kwargs['cir_pedi_total_obitos'],
+            self.rkpi_4_cir_pedi = self.kpi_tempo_medio( numerador = kwargs['cir_pedi_total_obitos'],
                                                    denominador = kwargs['cir_pedi_total_saidas'])
-            self.rkpi4_cir_ad = self.kpi_tempo_medio( numerador = kwargs['cir_ad_total_obitos'],
+            self.rkpi_4_cir_ad = self.kpi_tempo_medio( numerador = kwargs['cir_ad_total_obitos'],
                                                  denominador = kwargs['cir_ad_total_saidas'])
-            self.rkpi4_cir_idoso = self.kpi_tempo_medio( numerador = kwargs['cir_idoso_total_obitos'],
+            self.rkpi_4_cir_idoso = self.kpi_tempo_medio( numerador = kwargs['cir_idoso_total_obitos'],
                                                     denominador = kwargs['cir_idoso_total_saidas'])            
-            self.rkpi4_clinico = self.kpi_tempo_medio( numerador = cli_total_obitos,
+            self.rkpi_4_clinico = self.kpi_tempo_medio( numerador = cli_total_obitos,
                                                   denominador = cli_total_saidas)
-            self.rkpi4_cirurgico = self.kpi_tempo_medio( numerador = cir_total_obitos,
+            self.rkpi_4_cirurgico = self.kpi_tempo_medio( numerador = cir_total_obitos,
                                                     denominador = cir_total_saidas)
-            self.rkpi4_neo_precoce = self.kpi_tempo_medio( numerador = neo_precoce_total_obitos,
+            self.rkpi_4_neo_precoce = self.kpi_tempo_medio( numerador = neo_precoce_total_obitos,
                                                       denominador = neo_precoce_total_saidas)
-            self.rkpi4_neo_tardio = self.kpi_tempo_medio( numerador = neo_tardio_total_obitos,
+            self.rkpi_4_neo_tardio = self.kpi_tempo_medio( numerador = neo_tardio_total_obitos,
                                                      denominador = neo_tardio_total_saidas)
-            self.rkpi4_pedi = self.kpi_tempo_medio( numerador = pedi_total_obitos,
+            self.rkpi_4_pedi = self.kpi_tempo_medio( numerador = pedi_total_obitos,
                                                denominador = pedi_total_saidas)
-            self.rkpi4_ad = self.kpi_tempo_medio( numerador = ad_total_obitos,
+            self.rkpi_4_ad = self.kpi_tempo_medio( numerador = ad_total_obitos,
                                              denominador = ad_total_saidas)
-            self.rkpi4_idoso = self.kpi_tempo_medio( numerador = idoso_total_obitos,
+            self.rkpi_4_idoso = self.kpi_tempo_medio( numerador = idoso_total_obitos,
                                                 denominador = idoso_total_saidas)
-            self.rkpi4_geral = self.kpi_tempo_medio( numerador = total_obitos,
+            self.rkpi_4 = self.kpi_tempo_medio( numerador = total_obitos,
                                                 denominador = total_saidas)            
-            return self.cria_dict('rkpi4')
+            return self.cria_objeto('rkpi_4')
         else:
             return None
 
@@ -235,35 +267,35 @@ class KPI(object):
             total_pacientes_dia = cli_total_pacientes_dia + cir_total_pacientes_dia
             total_saidas = cli_total_saidas + cir_total_saidas
 
-            self.rkpi5_cli_pedi = self.kpi_tempo_medio( numerador = kwargs['cli_pedi_total_pacientes_dia'],
+            self.rkpi_5_cli_pedi = self.kpi_tempo_medio( numerador = kwargs['cli_pedi_total_pacientes_dia'],
                                                    denominador = kwargs['cli_pedi_total_saidas'])
-            self.rkpi5_cli_ad = self.kpi_tempo_medio( numerador = kwargs['cli_ad_total_pacientes_dia'],
+            self.rkpi_5_cli_ad = self.kpi_tempo_medio( numerador = kwargs['cli_ad_total_pacientes_dia'],
                                                  denominador = kwargs['cli_ad_total_saidas'])
-            self.rkpi5_cli_idoso = self.kpi_tempo_medio( numerador = kwargs['cli_idoso_total_pacientes_dia'],
+            self.rkpi_5_cli_idoso = self.kpi_tempo_medio( numerador = kwargs['cli_idoso_total_pacientes_dia'],
                                                     denominador = kwargs['cli_idoso_total_saidas'])
-            self.rkpi5_cir_pedi = self.kpi_tempo_medio( numerador = kwargs['cir_pedi_total_pacientes_dia'],
+            self.rkpi_5_cir_pedi = self.kpi_tempo_medio( numerador = kwargs['cir_pedi_total_pacientes_dia'],
                                                    denominador = kwargs['cir_pedi_total_saidas'])
-            self.rkpi5_cir_ad = self.kpi_tempo_medio( numerador = kwargs['cir_ad_total_pacientes_dia'],
+            self.rkpi_5_cir_ad = self.kpi_tempo_medio( numerador = kwargs['cir_ad_total_pacientes_dia'],
                                                  denominador = kwargs['cir_ad_total_saidas'])
-            self.rkpi5_cir_idoso = self.kpi_tempo_medio( numerador = kwargs['cir_idoso_total_pacientes_dia'],
+            self.rkpi_5_cir_idoso = self.kpi_tempo_medio( numerador = kwargs['cir_idoso_total_pacientes_dia'],
                                                     denominador = kwargs['cir_idoso_total_saidas'])
-            self.rkpi5_clinico = self.kpi_tempo_medio( numerador = cli_total_pacientes_dia,
+            self.rkpi_5_clinico = self.kpi_tempo_medio( numerador = cli_total_pacientes_dia,
                                                   denominador = cli_total_saidas)
-            self.rkpi5_cirurgico = self.kpi_tempo_medio( numerador = cir_total_pacientes_dia,
+            self.rkpi_5_cirurgico = self.kpi_tempo_medio( numerador = cir_total_pacientes_dia,
                                                     denominador = cir_total_saidas)
-            self.rkpi5_pedi = self.kpi_tempo_medio( numerador = pedi_total_pacientes_dia,
+            self.rkpi_5_pedi = self.kpi_tempo_medio( numerador = pedi_total_pacientes_dia,
                                                denominador = pedi_total_saidas)
-            self.rkpi5_ad = self.kpi_tempo_medio( numerador = ad_total_pacientes_dia,
+            self.rkpi_5_ad = self.kpi_tempo_medio( numerador = ad_total_pacientes_dia,
                                              denominador = ad_total_saidas)
-            self.rkpi5_idoso = self.kpi_tempo_medio( numerador = idoso_total_pacientes_dia,
+            self.rkpi_5_idoso = self.kpi_tempo_medio( numerador = idoso_total_pacientes_dia,
                                                 denominador = idoso_total_saidas)
-            self.rkpi5_geral = self.kpi_tempo_medio( numerador = total_pacientes_dia,
+            self.rkpi_5 = self.kpi_tempo_medio( numerador = total_pacientes_dia,
                                                 denominador = total_saidas)            
-            return self.cria_dict('rkpi5')
+            return self.cria_objeto('rkpi_5')
         else:
             return None
 
-    def kpi6(self, **kwargs) -> float:
+    def kpi6(self, **kwargs) -> dict:
         # 6. Tempo médio de permanência na emergência
         chaves_obrigatorias = [
             'total_tempo_entrada_termino',
@@ -271,8 +303,9 @@ class KPI(object):
         ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
             # Calcular o KPI        
-            return self.kpi_tempo_medio( numerador = kwargs['total_tempo_entrada_termino'],
-                                         denominador = kwargs['total_pacientes_buscaram_atendimento'] )
+            self.rkpi_6 = self.kpi_tempo_medio( numerador = kwargs['total_tempo_entrada_termino'],
+                                                denominador = kwargs['total_pacientes_buscaram_atendimento'] )
+            return self.cria_objeto('rkpi_6')
         else:
             return None
 
@@ -287,17 +320,17 @@ class KPI(object):
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
             total_tempo_espera = kwargs['nvl2_total_tempo_espera']+kwargs['nvl3_total_tempo_espera']
             total_pacientes_buscaram_atendimento = kwargs['nvl2_total_pacientes_buscaram_atendimento']+kwargs['nvl3_total_pacientes_buscaram_atendimento']
-            self.rkpi7_nvl2 = self.kpi_tempo_medio( numerador = kwargs['nvl2_total_tempo_espera'],
+            self.rkpi_7_nvl2 = self.kpi_tempo_medio( numerador = kwargs['nvl2_total_tempo_espera'],
                                                denominador = kwargs['nvl2_total_pacientes_buscaram_atendimento'])
-            self.rkpi7_nvl3 = self.kpi_tempo_medio( numerador = kwargs['nvl3_total_tempo_espera'],
+            self.rkpi_7_nvl3 = self.kpi_tempo_medio( numerador = kwargs['nvl3_total_tempo_espera'],
                                                denominador = kwargs['nvl2_total_pacientes_buscaram_atendimento'])
-            self.rkpi7_geral = self.kpi_tempo_medio( numerador = total_tempo_espera,
+            self.rkpi_7 = self.kpi_tempo_medio( numerador = total_tempo_espera,
                                                 denominador = total_pacientes_buscaram_atendimento )
-            return self.cria_dict('rkpi7')
+            return self.cria_objeto('rkpi_7')
         else:
             return None
 
-    def kpi8(self, **kwargs) -> float:
+    def kpi8(self, **kwargs) -> dict:
         # 8. Taxa de início de antibiótico intravenoso profilático
         chaves_obrigatorias = [
             'total_cirurgias_limpas_com_atb',
@@ -305,12 +338,13 @@ class KPI(object):
         ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
             # Calcular o KPI        
-            return self.kpi_taxa( numerador = kwargs['total_cirurgias_limpas_com_atb'],
-                                  denominador = kwargs['total_cirurgias_limpas'] )
+            self.rkpi_8 = self.kpi_taxa( numerador = kwargs['total_cirurgias_limpas_com_atb'],
+                                         denominador = kwargs['total_cirurgias_limpas'] )
+            return self.cria_objeto('rkpi_8')
         else:
             return None
 
-    def kpi9(self, **kwargs) -> float:
+    def kpi9(self, **kwargs) -> dict:
         # 9. Taxa de infecção de sítio cirúrgico em cirurgia limpa
         chaves_obrigatorias = [
             'total_isc_30_dias',
@@ -319,8 +353,9 @@ class KPI(object):
 
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
             # Calcular o KPI        
-            return self.kpi_taxa( numerador = kwargs['total_isc_30_dias'],
-                                  denominador = kwargs['total_cirurgias_limpas_mes_anterior'] )      
+            self.rkpi_9 = self.kpi_taxa( numerador = kwargs['total_isc_30_dias'],
+                                         denominador = kwargs['total_cirurgias_limpas_mes_anterior'] )    
+            return self.cria_objeto('rkpi_9')  
         else:
             return None
 
@@ -350,31 +385,31 @@ class KPI(object):
             total_ipcs = ui_total_ipcs + uti_total_ipcs
             total_cvc_dia = ui_total_cvc_dia + uti_total_cvc_dia            
 
-            self.rkpi10_ui_neo = self.kpi_densidade( numerador = kwargs['ui_neo_total_ipcs'],
+            self.rkpi_10_ui_neo = self.kpi_densidade( numerador = kwargs['ui_neo_total_ipcs'],
                                                 denominador = kwargs['ui_neo_total_cvc_dia'] )  
-            self.rkpi10_ui_pedi = self.kpi_densidade( numerador = kwargs['ui_pedi_total_ipcs'],
+            self.rkpi_10_ui_pedi = self.kpi_densidade( numerador = kwargs['ui_pedi_total_ipcs'],
                                                  denominador = kwargs['ui_pedi_total_cvc_dia'] )  
-            self.rkpi10_ui_ad = self.kpi_densidade( numerador = kwargs['ui_ad_total_ipcs'],
+            self.rkpi_10_ui_ad = self.kpi_densidade( numerador = kwargs['ui_ad_total_ipcs'],
                                                denominador = kwargs['ui_ad_total_cvc_dia'] )  
-            self.rkpi10_uti_neo = self.kpi_densidade( numerador = kwargs['uti_neo_total_ipcs'],
+            self.rkpi_10_uti_neo = self.kpi_densidade( numerador = kwargs['uti_neo_total_ipcs'],
                                                  denominador = kwargs['uti_neo_total_cvc_dia'] )  
-            self.rkpi10_uti_pedi = self.kpi_densidade( numerador = kwargs['uti_pedi_total_ipcs'],
+            self.rkpi_10_uti_pedi = self.kpi_densidade( numerador = kwargs['uti_pedi_total_ipcs'],
                                                   denominador = kwargs['uti_pedi_total_cvc_dia'] )  
-            self.rkpi10_uti_ad = self.kpi_densidade( numerador = kwargs['uti_ad_total_ipcs'],
+            self.rkpi_10_uti_ad = self.kpi_densidade( numerador = kwargs['uti_ad_total_ipcs'],
                                                 denominador = kwargs['uti_ad_total_cvc_dia'] )  
-            self.rkpi10_neo = self.kpi_densidade( numerador = neo_total_ipcs,
+            self.rkpi_10_neo = self.kpi_densidade( numerador = neo_total_ipcs,
                                              denominador = neo_total_cvc_dia )
-            self.rkpi10_pedi = self.kpi_densidade( numerador = pedi_total_ipcs,
+            self.rkpi_10_pedi = self.kpi_densidade( numerador = pedi_total_ipcs,
                                               denominador = pedi_total_cvc_dia )
-            self.rkpi10_ad = self.kpi_densidade( numerador = ad_total_ipcs,
+            self.rkpi_10_ad = self.kpi_densidade( numerador = ad_total_ipcs,
                                             denominador = ad_total_cvc_dia )
-            self.rkpi10_ui = self.kpi_densidade( numerador = ui_total_ipcs,
+            self.rkpi_10_ui = self.kpi_densidade( numerador = ui_total_ipcs,
                                             denominador = ui_total_cvc_dia )
-            self.rkpi10_uti = self.kpi_densidade( numerador = uti_total_ipcs,
+            self.rkpi_10_uti = self.kpi_densidade( numerador = uti_total_ipcs,
                                              denominador = uti_total_cvc_dia ) 
-            self.rkpi10_geral = self.kpi_densidade( numerador = total_ipcs,
+            self.rkpi_10 = self.kpi_densidade( numerador = total_ipcs,
                                                denominador = total_cvc_dia )             
-            return self.cria_dict('rkpi10')
+            return self.cria_objeto('rkpi_10')
         else:
             return None
 
@@ -404,31 +439,31 @@ class KPI(object):
             total_itu = ui_total_itu + uti_total_itu
             total_cvd_dia = ui_total_cvd_dia + uti_total_cvd_dia            
 
-            self.rkpi11_ui_neo = self.kpi_densidade( numerador = kwargs['ui_neo_total_itu'],
+            self.rkpi_11_ui_neo = self.kpi_densidade( numerador = kwargs['ui_neo_total_itu'],
                                                 denominador = kwargs['ui_neo_total_cvd_dia'] )  
-            self.rkpi11_ui_pedi = self.kpi_densidade( numerador = kwargs['ui_pedi_total_itu'],
+            self.rkpi_11_ui_pedi = self.kpi_densidade( numerador = kwargs['ui_pedi_total_itu'],
                                                  denominador = kwargs['ui_pedi_total_cvd_dia'] )  
-            self.rkpi11_ui_ad = self.kpi_densidade( numerador = kwargs['ui_ad_total_itu'],
+            self.rkpi_11_ui_ad = self.kpi_densidade( numerador = kwargs['ui_ad_total_itu'],
                                                denominador = kwargs['ui_ad_total_cvd_dia'] )  
-            self.rkpi11_uti_neo = self.kpi_densidade( numerador = kwargs['uti_neo_total_itu'],
+            self.rkpi_11_uti_neo = self.kpi_densidade( numerador = kwargs['uti_neo_total_itu'],
                                                  denominador = kwargs['uti_neo_total_cvd_dia'] )  
-            self.rkpi11_uti_pedi = self.kpi_densidade( numerador = kwargs['uti_pedi_total_itu'],
+            self.rkpi_11_uti_pedi = self.kpi_densidade( numerador = kwargs['uti_pedi_total_itu'],
                                                   denominador = kwargs['uti_pedi_total_cvd_dia'] )  
-            self.rkpi11_uti_ad = self.kpi_densidade( numerador = kwargs['uti_ad_total_itu'],
+            self.rkpi_11_uti_ad = self.kpi_densidade( numerador = kwargs['uti_ad_total_itu'],
                                                 denominador = kwargs['uti_ad_total_cvd_dia'] )  
-            self.rkpi11_neo = self.kpi_densidade( numerador = neo_total_itu,
+            self.rkpi_11_neo = self.kpi_densidade( numerador = neo_total_itu,
                                              denominador = neo_total_cvd_dia )
-            self.rkpi11_pedi = self.kpi_densidade( numerador = pedi_total_itu,
+            self.rkpi_11_pedi = self.kpi_densidade( numerador = pedi_total_itu,
                                               denominador = pedi_total_cvd_dia )
-            self.rkpi11_ad = self.kpi_densidade( numerador = ad_total_itu,
+            self.rkpi_11_ad = self.kpi_densidade( numerador = ad_total_itu,
                                             denominador = ad_total_cvd_dia )
-            self.rkpi11_ui = self.kpi_densidade( numerador = ui_total_itu,
+            self.rkpi_11_ui = self.kpi_densidade( numerador = ui_total_itu,
                                             denominador = ui_total_cvd_dia )
-            self.rkpi11_uti = self.kpi_densidade( numerador = uti_total_itu,
+            self.rkpi_11_uti = self.kpi_densidade( numerador = uti_total_itu,
                                              denominador = uti_total_cvd_dia ) 
-            self.rkpi11_geral = self.kpi_densidade( numerador = total_itu,
+            self.rkpi_11 = self.kpi_densidade( numerador = total_itu,
                                                denominador = total_cvd_dia )            
-            return self.cria_dict('rkpi11')
+            return self.cria_objeto('rkpi_11')
         else:
             return None
 
@@ -444,34 +479,36 @@ class KPI(object):
             total_pacientes_risco_profilaxia_TEV = cir_total_pacientes_risco_profilaxia_TEV+kwargs['cli_total_pacientes_risco_profilaxia_TEV']
             cir_total_pacientes_risco = kwargs['cir_orto_total_pacientes_risco']+kwargs['cir_n_orto_total_pacientes_risco']
             total_pacientes_risco = cir_total_pacientes_risco+kwargs['cli_total_pacientes_risco']
-            self.rkpi12_cir_orto = self.kpi_taxa( numerador = kwargs['cir_orto_total_pacientes_risco_profilaxia_TEV'],
+            self.rkpi_12_cir_orto = self.kpi_taxa( numerador = kwargs['cir_orto_total_pacientes_risco_profilaxia_TEV'],
                                              denominador = kwargs['cir_orto_total_pacientes_risco'])
-            self.rkpi12_cir_n_orto = self.kpi_taxa( numerador = kwargs['cir_n_orto_total_pacientes_risco_profilaxia_TEV'],
+            self.rkpi_12_cir_n_orto = self.kpi_taxa( numerador = kwargs['cir_n_orto_total_pacientes_risco_profilaxia_TEV'],
                                                denominador = kwargs['cir_n_orto_total_pacientes_risco'])
-            self.rkpi12_cirurgico = self.kpi_taxa( numerador = cir_total_pacientes_risco_profilaxia_TEV,
+            self.rkpi_12_cirurgico = self.kpi_taxa( numerador = cir_total_pacientes_risco_profilaxia_TEV,
                                               denominador = cir_total_pacientes_risco)
-            self.rkpi12_geral = self.kpi_taxa( numerador = total_pacientes_risco_profilaxia_TEV,
+            self.rkpi_12 = self.kpi_taxa( numerador = total_pacientes_risco_profilaxia_TEV,
                                           denominador = total_pacientes_risco )
-            return self.cria_dict('rkpi12')
+            return self.cria_objeto('rkpi_12')
         else:
             return None
         
-    def kpi13(self, **kwargs) -> float:
+    def kpi13(self, **kwargs) -> dict:
         # 13. Densidade de incidência de queda resultando em lesão em paciente
-        chaves_obrigatorias = ['total_quedas_dano','total_pacientes_dia']
+        chaves_obrigatorias = [ 'total_quedas_dano', 'total_pacientes_dia' ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
             # Calcular o KPI        
-            return self.kpi_densidade( numerador = kwargs['total_quedas_dano'],
-                                       denominador = kwargs['total_pacientes_dia'] )  
+            self.rkpi_13 = self.kpi_densidade( numerador = kwargs['total_quedas_dano'],
+                                               denominador = kwargs['total_pacientes_dia'] )  
+            return self.cria_objeto('rkpi_13')
         else:
             return None
 
-    def kpi14(self, **kwargs) -> float:
+    def kpi14(self, **kwargs) -> dict:
         # 14. Evento sentinela
         chaves_obrigatorias = ['total_eventos_sentinela','total_pacientes_dia']
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
             # Calcular o KPI        
-            return self.kpi_densidade( numerador = kwargs['total_eventos_sentinela'],
-                                       denominador = kwargs['total_pacientes_dia'] )  
+            self.rkpi_14 = self.kpi_densidade( numerador = kwargs['total_eventos_sentinela'],
+                                               denominador = kwargs['total_pacientes_dia'] )  
+            return self.cria_objeto('rkpi_14')
         else:
             return None     
