@@ -59,20 +59,22 @@ class App(object):
             "organization_cnes": organization_cnes,
             "year": year,
             "month": month,
-            **self._1_proporcao_partos_vaginais,
-            **self._2_proporcao_reinternacoes_30_dias,
-            **self._3_taxa_pcr,
-            **self._4_taxa_mortalidade,
-            **self._5_tempo_medio_internacao,
-            **self._6_tempo_medio_emergencia,
-            **self._7_tempo_medio_espera_emergencia,
-            **self._8_taxa_atb_profilatico,
-            **self._9_taxa_infeccao_cirurgia_limpa,
-            **self._10_incidencia_ipcs_cvc,
-            **self._11_incidencia_itu_cvd,
-            **self._12_taxa_profilaxia_tromboembolismo,
-            **self._13_incidencia_queda,
-            **self._14_evento_sentinela
+            "data": {
+                **self._1_proporcao_partos_vaginais,
+                **self._2_proporcao_reinternacoes_30_dias,
+                **self._3_taxa_pcr,
+                **self._4_taxa_mortalidade,
+                **self._5_tempo_medio_internacao,
+                **self._6_tempo_medio_emergencia,
+                **self._7_tempo_medio_espera_emergencia,
+                **self._8_taxa_atb_profilatico,
+                **self._9_taxa_infeccao_cirurgia_limpa,
+                **self._10_incidencia_ipcs_cvc,
+                **self._11_incidencia_itu_cvd,
+                **self._12_taxa_profilaxia_tromboembolismo,
+                **self._13_incidencia_queda,
+                **self._14_evento_sentinela
+            }
         }
         return result_dict
             
