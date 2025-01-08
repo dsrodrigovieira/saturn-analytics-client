@@ -94,12 +94,7 @@ class dbConfig (object):
         return year_month        
 
     def load_data(self, collection_name:str, query:dict) -> bool:
-        chaves_obrigatorias = [
-            'organization_cnes', 'year', 'month',
-            'rkpi_1', 'rkpi_2', 'rkpi_3', 'rkpi_4', 'rkpi_5',
-            'rkpi_6', 'rkpi_7', 'rkpi_8', 'rkpi_9', 'rkpi_10',
-            'rkpi_11', 'rkpi_12', 'rkpi_13', 'rkpi_14'
-        ]
+        chaves_obrigatorias = [ 'organization_cnes', 'year', 'month', 'data' ]
         # Validar existência dos parâmetros
         if not collection_name or not query:
             raise ValueError("Os parametros não podem estar vazios.")
