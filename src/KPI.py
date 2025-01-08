@@ -96,7 +96,6 @@ class KPI(object):
         return True
     
     def cria_variavel(self, mascara:str) -> dict:
-        #self.rkpi_data = {name: value for name, value in self.__dict__.items() if name.startswith(mascara)}
         return {name: value for name, value in self.__dict__.items() if name.startswith(mascara)}
 
     def cria_estratificacao(self, mascara:str) -> dict:
@@ -116,7 +115,7 @@ class KPI(object):
     
     def cria_objeto(self, mascara:str) -> dict:
         rkpi_data, nome, estratificacao = self.cria_estratificacao(mascara)
-        return { nome: { "value": rkpi_data[nome], "estratification": estratificacao } }
+        return { nome: { "value": rkpi_data[nome], "variation": "c", "estratification": estratificacao } }
 
     def kpi_taxa(self, numerador:int,denominador:int) -> float:
         return (numerador/denominador) *100
