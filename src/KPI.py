@@ -1,8 +1,14 @@
 import re
 
 class KPI(object):
+    """
+    Classe para cálculo e manipulação de Indicadores de Desempenho (KPIs).
+    """
 
-    def __init__ ( self ):
+    def __init__(self):
+        """
+        Inicializa os atributos necessários para armazenar o valor do KPI e dados relacionados.
+        """
         self.rkpi_1 = None
         self.rkpi_2_clinico = None
         self.rkpi_2_cirurgico = None
@@ -78,68 +84,159 @@ class KPI(object):
         pass
 
     def validar_kwargs(self, kwargs, chaves_obrigatorias):
-        # Validar se kwargs está vazio
+        """
+        Valida se as chaves obrigatórias estão presentes em kwargs e se seus valores não são nulos.
+        
+        Args:
+            kwargs (dict): Dicionário de argumentos a ser validado.
+            chaves_obrigatorias (list): Lista de chaves obrigatórias que devem existir em kwargs.
+
+        Returns:
+            bool: True se todas as validações forem bem-sucedidas.
+
+        Raises:
+            ValueError: Se kwargs estiver vazio ou se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente em kwargs.
+        """
         if not kwargs:
             raise ValueError("Os argumentos kwargs não podem estar vazios.")
         
-        # Validar se todas as chaves obrigatórias estão presentes
         for chave in chaves_obrigatorias:
             if chave not in kwargs:
                 raise KeyError(f"A chave obrigatória '{chave}' está ausente.")
         
-        # Validar se os valores das chaves obrigatórias não são nulos
         for chave in chaves_obrigatorias:
             if kwargs[chave] is None:
                 raise ValueError(f"O valor da chave '{chave}' não pode ser nulo.")
         
-        # Retornar True se tudo estiver válido
         return True
     
-    def cria_variavel(self, mascara:str) -> dict:
+    def cria_variavel(self, mascara: str) -> dict:
+        """
+        Cria um dicionário com variáveis cujo nome começa com a máscara fornecida.
+        
+        Args:
+            mascara (str): Máscara a ser usada para filtrar as variáveis da classe.
+        
+        Returns:
+            dict: Dicionário com as variáveis filtradas.
+        """
         return {name: value for name, value in self.__dict__.items() if name.startswith(mascara)}
 
-    def cria_estratificacao(self, mascara:str) -> dict:
+    def cria_estratificacao(self, mascara: str) -> dict:
+        """
+        Cria a estratificação com base nas variáveis filtradas pela máscara.
+
+        Args:
+            mascara (str): Máscara usada para filtrar as variáveis da classe.
+        
+        Returns:
+            tuple: Contém o dicionário rkpi_data, o nome da variável principal e a estratificação.
+        """
         rkpi_data = self.cria_variavel(mascara)
         nome = re.match("^.+_\\d+", list(rkpi_data.keys())[0]).group(0)
         estratificacao = []
 
         if type(rkpi_data) in [float, int]:
-            pass
+            pass  # Caso os dados não sejam um dicionário, não há estratificação
         else:
             for key in rkpi_data.keys():
-                if key!=nome:
-                    estratificacao.append({ "type": key.replace(nome+'_',''), "value": rkpi_data[nome] })
+                if key != nome:
+                    estratificacao.append({ "type": key.replace(nome+'_', ''), "value": rkpi_data[nome] })
                 else:
                     break
         return rkpi_data, nome, estratificacao
     
-    def cria_objeto(self, mascara:str) -> dict:
+    def cria_objeto(self, mascara: str) -> dict:
+        """
+        Cria um objeto de KPI com base nas variáveis filtradas pela máscara.
+        
+        Args:
+            mascara (str): Máscara a ser usada para filtrar as variáveis da classe.
+
+        Returns:
+            dict: Objeto do KPI com o valor e a estratificação.
+        """
         rkpi_data, nome, estratificacao = self.cria_estratificacao(mascara)
         return { nome: { "value": rkpi_data[nome], "variation": "c", "estratification": estratificacao } }
 
-    def kpi_taxa(self, numerador:int,denominador:int) -> float:
-        return (numerador/denominador) *100
+    def kpi_taxa(self, numerador: int, denominador: int) -> float:
+        """
+        Calcula a taxa de um KPI, ou seja, a proporção entre o numerador e denominador multiplicada por 100.
+        
+        Args:
+            numerador (int): Valor do numerador.
+            denominador (int): Valor do denominador.
 
-    def kpi_tempo_medio(self, numerador:int,denominador:int) -> float:
-        return (numerador/denominador)
+        Returns:
+            float: Taxa calculada.
+        """
+        return (numerador / denominador) * 100
 
-    def kpi_densidade(self, numerador:int,denominador:int) -> float:
-        return (numerador/denominador) *1000
+    def kpi_tempo_medio(self, numerador: int, denominador: int) -> float:
+        """
+        Calcula o tempo médio de um KPI.
+        
+        Args:
+            numerador (int): Valor do numerador.
+            denominador (int): Valor do denominador.
+
+        Returns:
+            float: Tempo médio calculado.
+        """
+        return (numerador / denominador)
+
+    def kpi_densidade(self, numerador: int, denominador: int) -> float:
+        """
+        Calcula a densidade de um KPI, ou seja, a proporção entre o numerador e denominador multiplicada por 1000.
+        
+        Args:
+            numerador (int): Valor do numerador.
+            denominador (int): Valor do denominador.
+
+        Returns:
+            float: Densidade calculada.
+        """
+        return (numerador / denominador) * 1000
     
     def kpi1(self, **kwargs) -> dict:
-        # 1. Proporção de partos vaginais 
-        chaves_obrigatorias = ['total_partos_vaginais','total_partos_cesareos']
-        if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
-            # Calcular o KPI
+        """
+        Calcula a proporção de partos vaginais em relação ao total de partos.
+
+        Args:
+            kwargs (dict): Dicionário com o total de partos vaginais e cesáreos.
+
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """
+        chaves_obrigatorias = ['total_partos_vaginais', 'total_partos_cesareos']
+        if self.validar_kwargs(kwargs, chaves_obrigatorias):        
             total_partos = kwargs['total_partos_vaginais'] + kwargs['total_partos_cesareos']            
-            self.rkpi_1 = self.kpi_taxa( numerador = kwargs['total_partos_vaginais'],
-                                         denominador = total_partos )
+            self.rkpi_1 = self.kpi_taxa(numerador=kwargs['total_partos_vaginais'],
+                                         denominador=total_partos)
             return self.cria_objeto('rkpi_1')
         else:
             return None
     
     def kpi2(self, **kwargs) -> dict:
-        # 2. Proporção de reinternações em até 30 dias da saída hospitalar
+        """
+        Calcula a proporção de reinternações em até 30 dias da saída hospitalar.
+        Estratificações: clínico e cirúrgico.
+
+        Args:
+            kwargs (dict): Dicionário com o total de saídas no mês anterior e o total de reinternações em 30 dias
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """   
         chaves_obrigatorias = [
             'cli_total_reinternacoes_30_dias','cli_total_saida_mes_anterior',
             'cir_total_reinternacoes_30_dias','cir_total_saida_mes_anterior'
@@ -158,10 +255,21 @@ class KPI(object):
             return None
     
     def kpi3(self, **kwargs) -> dict:
-        # 3. Taxa de parada cardiorrespiratória em unidade de internação
+        """
+        Calcula a taxa de parada cardiorrespiratória em unidade de internação.
+        
+        Args:
+            kwargs (dict): Dicionário com o total de pacientes-dia e o total de PCRs
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """
         chaves_obrigatorias = ['total_pcr','total_pacientes_dia']
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
-            # Calcular o KPI        
             self.rkpi_3 = self.kpi_densidade( numerador = kwargs['total_pcr'],
                                               denominador = kwargs['total_pacientes_dia'] )
             return self.cria_objeto('rkpi_3')
@@ -169,6 +277,20 @@ class KPI(object):
             return None        
 
     def kpi4(self, **kwargs) -> dict:
+        """
+        Calcula a taxa de mortalidade institucional.
+        Estratificações: clínico, cirúrgico, neo precoce, neo tardio, pediátrico, adulto, idoso.
+
+        Args:
+            kwargs (dict): Dicionário com o total de saídas e o total de óbitos 
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """   
         # 4. Taxa de mortalidade institucional
         chaves_obrigatorias = [
             'cli_neo_precoce_total_obitos','cli_neo_precoce_total_saidas',
@@ -183,7 +305,6 @@ class KPI(object):
             'cir_idoso_total_obitos','cir_idoso_total_saidas'
         ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
-            # Calcular o KPI        
             cli_total_obitos = kwargs['cli_neo_precoce_total_obitos']+kwargs['cli_neo_tardio_total_obitos']+kwargs['cli_pedi_total_obitos']+kwargs['cli_ad_total_obitos']+kwargs['cli_idoso_total_obitos']
             cir_total_obitos = kwargs['cir_neo_precoce_total_obitos']+kwargs['cir_neo_tardio_total_obitos']+kwargs['cir_pedi_total_obitos']+kwargs['cir_ad_total_obitos']+kwargs['cir_idoso_total_obitos']
             cli_total_saidas = kwargs['cli_neo_precoce_total_saidas']+kwargs['cli_neo_tardio_total_saidas']+kwargs['cli_pedi_total_saidas']+kwargs['cli_ad_total_saidas']+kwargs['cli_idoso_total_saidas']
@@ -242,7 +363,20 @@ class KPI(object):
             return None
 
     def kpi5(self, **kwargs) -> dict:
-        # 5. Tempo médio de internação
+        """
+        Calcula o tempo médio de internação.
+        Estratificações: clínico, cirúrgico, pediátrico, adulto, idoso.
+
+        Args:
+            kwargs (dict): Dicionário com o total de saídas e o total de pacientes-dia 
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """        
         chaves_obrigatorias = [
             'cli_pedi_total_pacientes_dia','cli_pedi_total_saidas',
             'cli_ad_total_pacientes_dia','cli_ad_total_saidas',
@@ -252,7 +386,6 @@ class KPI(object):
             'cir_idoso_total_pacientes_dia','cir_idoso_total_saidas',
             ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
-            # Calcular o KPI        
             cli_total_pacientes_dia = kwargs['cli_pedi_total_pacientes_dia']+kwargs['cli_ad_total_pacientes_dia']+kwargs['cli_idoso_total_pacientes_dia']
             cir_total_pacientes_dia = kwargs['cir_pedi_total_pacientes_dia']+kwargs['cir_ad_total_pacientes_dia']+kwargs['cir_idoso_total_pacientes_dia']
             pedi_total_pacientes_dia = kwargs['cir_pedi_total_pacientes_dia']+kwargs['cli_pedi_total_pacientes_dia']
@@ -295,13 +428,21 @@ class KPI(object):
             return None
 
     def kpi6(self, **kwargs) -> dict:
-        # 6. Tempo médio de permanência na emergência
-        chaves_obrigatorias = [
-            'total_tempo_entrada_termino',
-            'total_pacientes_buscaram_atendimento'
-        ]
+        """
+        Calcula o tempo médio de permanência na emergência.
+        
+        Args:
+            kwargs (dict): Dicionário com o total de pacientes que buscaram atendimento e o total de tempo entre a chegada e o término do atendimento.
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """          
+        chaves_obrigatorias = [ 'total_tempo_entrada_termino', 'total_pacientes_buscaram_atendimento' ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
-            # Calcular o KPI        
             self.rkpi_6 = self.kpi_tempo_medio( numerador = kwargs['total_tempo_entrada_termino'],
                                                 denominador = kwargs['total_pacientes_buscaram_atendimento'] )
             return self.cria_objeto('rkpi_6')
@@ -309,13 +450,22 @@ class KPI(object):
             return None
 
     def kpi7(self, **kwargs) -> dict:
-        # 7. Tempo médio de espera na emergência para primeiro atendimento
-        chaves_obrigatorias = [
-            'nvl2_total_tempo_espera',
-            'nvl2_total_pacientes_buscaram_atendimento',
-            'nvl3_total_tempo_espera',
-            'nvl3_total_pacientes_buscaram_atendimento'
-        ]
+        """
+        Calcula o tempo médio de espera na emergência para primeiro atendimento.
+        Estratificações: nível 2 (Laranja, Muito Urgente), nível 3 (Amarelo, Urgente)
+
+        Args:
+            kwargs (dict): Dicionário com o total de pacientes que buscaram atendimento e o total de tempo entre a triagem e o início do atendimento médico.
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """          
+        chaves_obrigatorias = [ 'nvl2_total_tempo_espera', 'nvl2_total_pacientes_buscaram_atendimento',
+                                'nvl3_total_tempo_espera', 'nvl3_total_pacientes_buscaram_atendimento' ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
             total_tempo_espera = kwargs['nvl2_total_tempo_espera']+kwargs['nvl3_total_tempo_espera']
             total_pacientes_buscaram_atendimento = kwargs['nvl2_total_pacientes_buscaram_atendimento']+kwargs['nvl3_total_pacientes_buscaram_atendimento']
@@ -330,13 +480,21 @@ class KPI(object):
             return None
 
     def kpi8(self, **kwargs) -> dict:
-        # 8. Taxa de início de antibiótico intravenoso profilático
-        chaves_obrigatorias = [
-            'total_cirurgias_limpas_com_atb',
-            'total_cirurgias_limpas'
-        ]
+        """
+        Calcula a taxa de início de antibiótico intravenoso profilático.
+        
+        Args:
+            kwargs (dict): Dicionário com o total cirurgias limpas e o total de cirurgias limpas com ATB.
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """
+        chaves_obrigatorias = [ 'total_cirurgias_limpas_com_atb', 'total_cirurgias_limpas' ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
-            # Calcular o KPI        
             self.rkpi_8 = self.kpi_taxa( numerador = kwargs['total_cirurgias_limpas_com_atb'],
                                          denominador = kwargs['total_cirurgias_limpas'] )
             return self.cria_objeto('rkpi_8')
@@ -344,14 +502,21 @@ class KPI(object):
             return None
 
     def kpi9(self, **kwargs) -> dict:
-        # 9. Taxa de infecção de sítio cirúrgico em cirurgia limpa
-        chaves_obrigatorias = [
-            'total_isc_30_dias',
-            'total_cirurgias_limpas_mes_anterior'
-        ]
+        """
+        Calcula a taxa de infecção de sítio cirúrgico em cirurgia limpa.
+        
+        Args:
+            kwargs (dict): Dicionário com o total cirurgias limpas no mês anterior e o total de infecções de sítio cirúrgico em até 30 dias.
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
 
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """
+        chaves_obrigatorias = [ 'total_isc_30_dias', 'total_cirurgias_limpas_mes_anterior' ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
-            # Calcular o KPI        
             self.rkpi_9 = self.kpi_taxa( numerador = kwargs['total_isc_30_dias'],
                                          denominador = kwargs['total_cirurgias_limpas_mes_anterior'] )    
             return self.cria_objeto('rkpi_9')  
@@ -359,8 +524,20 @@ class KPI(object):
             return None
 
     def kpi10(self, **kwargs) -> dict:
-        # 10. Densidade de incidência de infecção primária de corrente sanguínea (IPCS)
-        # em pacientes em uso de cateter venoso central (CVC)
+        """
+        Calcula a densidade de incidência de infecção primária de corrente sanguínea (IPCS) em pacientes em uso de cateter venoso central (CVC).
+        Estratificações: uti, unidade de internação, neonatal, pediátrico, adulto.
+        
+        Args:
+            kwargs (dict): Dicionário com o total cateter-dia e o total de infecções de corrente sanguínea.
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """        
         chaves_obrigatorias = [
             'ui_neo_total_ipcs', 'uti_neo_total_ipcs',
             'ui_pedi_total_ipcs', 'uti_pedi_total_ipcs',
@@ -370,7 +547,6 @@ class KPI(object):
             'ui_ad_total_cvc_dia', 'uti_ad_total_cvc_dia'            
         ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
-            # Calcular o KPI
             ui_total_ipcs = kwargs['ui_neo_total_ipcs']+kwargs['ui_pedi_total_ipcs']+kwargs['ui_ad_total_ipcs']
             uti_total_ipcs = kwargs['uti_neo_total_ipcs']+kwargs['uti_pedi_total_ipcs']+kwargs['uti_ad_total_ipcs']
             ui_total_cvc_dia = kwargs['ui_neo_total_cvc_dia']+kwargs['ui_pedi_total_cvc_dia']+kwargs['ui_ad_total_cvc_dia']
@@ -413,8 +589,20 @@ class KPI(object):
             return None
 
     def kpi11(self, **kwargs) -> dict:
-        # 11. Densidade de incidência de infecção do trato urinário (ITU) associada a um
-        # cateter vesical de demora (CVD)
+        """
+        Calcula a densidade de incidência de infecção do trato urinário (ITU) associada a um cateter vesical de demora (CVD).
+        Estratificações: uti, unidade de internação, neonatal, pediátrico, adulto.
+        
+        Args:
+            kwargs (dict): Dicionário com o total cateter-dia e o total de infecções do trato urinário.
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """        
         chaves_obrigatorias = [
             'ui_neo_total_itu', 'uti_neo_total_itu',
             'ui_pedi_total_itu', 'uti_pedi_total_itu',
@@ -424,7 +612,6 @@ class KPI(object):
             'ui_ad_total_cvd_dia', 'uti_ad_total_cvd_dia'            
         ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
-            # Calcular o KPI
             ui_total_itu = kwargs['ui_neo_total_itu']+kwargs['ui_pedi_total_itu']+kwargs['ui_ad_total_itu']
             uti_total_itu = kwargs['uti_neo_total_itu']+kwargs['uti_pedi_total_itu']+kwargs['uti_ad_total_itu']
             ui_total_cvd_dia = kwargs['ui_neo_total_cvd_dia']+kwargs['ui_pedi_total_cvd_dia']+kwargs['ui_ad_total_cvd_dia']
@@ -467,7 +654,20 @@ class KPI(object):
             return None
 
     def kpi12(self, **kwargs) -> dict:
-        # 12. Taxa de profilaxia de tromboembolismo venoso
+        """
+        Calcula a taxa de profilaxia de tromboembolismo venoso.
+        Estratificações: clínico, cirúrgico ortopédico, cirúrgico não ortopédico.
+        
+        Args:
+            kwargs (dict): Dicionário com o total de pacientes em risco trombótico não baixo e o total de pacientes com risco que receberam profilaxia.
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """           
         chaves_obrigatorias = [
             'cli_total_pacientes_risco_profilaxia_TEV','cli_total_pacientes_risco',
             'cir_orto_total_pacientes_risco_profilaxia_TEV','cir_orto_total_pacientes_risco',
@@ -491,10 +691,21 @@ class KPI(object):
             return None
         
     def kpi13(self, **kwargs) -> dict:
-        # 13. Densidade de incidência de queda resultando em lesão em paciente
+        """
+        Calcula a densidade de incidência de queda resultando em lesão em paciente.
+                
+        Args:
+            kwargs (dict): Dicionário com o total de pacientes-dia e o total de quedas com dano.
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """
         chaves_obrigatorias = [ 'total_quedas_dano', 'total_pacientes_dia' ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
-            # Calcular o KPI        
             self.rkpi_13 = self.kpi_densidade( numerador = kwargs['total_quedas_dano'],
                                                denominador = kwargs['total_pacientes_dia'] )  
             return self.cria_objeto('rkpi_13')
@@ -502,10 +713,21 @@ class KPI(object):
             return None
 
     def kpi14(self, **kwargs) -> dict:
-        # 14. Evento sentinela
-        chaves_obrigatorias = ['total_eventos_sentinela','total_pacientes_dia']
+        """
+        Calcula a densidade de eventos sentinela.
+                
+        Args:
+            kwargs (dict): Dicionário com o total de pacientes-dia e o total de eventos sentinela.
+            
+        Returns:
+            dict: Objeto com o valor do KPI calculado e a estratificação.
+
+        Raises:
+            ValueError: Se algum valor de chave obrigatória for nulo.
+            KeyError: Se alguma chave obrigatória estiver ausente.
+        """
+        chaves_obrigatorias = [ 'total_eventos_sentinela', 'total_pacientes_dia' ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
-            # Calcular o KPI        
             self.rkpi_14 = self.kpi_densidade( numerador = kwargs['total_eventos_sentinela'],
                                                denominador = kwargs['total_pacientes_dia'] )  
             return self.cria_objeto('rkpi_14')
