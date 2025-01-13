@@ -1,11 +1,16 @@
-import pandas    as pd
+import pandas as pd
 import streamlit as st
 from src.KPI import KPI
 
 class App(object):
+    """
+    Classe que gerencia o aplicativo de KPIs, incluindo carregamento de dados, validação, cálculos e exibição de resultados.
+    """
 
     def __init__(self):
-
+        """
+        Inicializa o objeto da classe App com uma instância de KPI e variáveis de controle para os KPIs.
+        """
         self.kpi = KPI()
         self._1_proporcao_partos_vaginais = None
         self._2_proporcao_reinternacoes_30_dias = None
@@ -21,40 +26,70 @@ class App(object):
         self._12_taxa_profilaxia_tromboembolismo = None
         self._13_incidencia_queda = None
         self._14_evento_sentinela = None
-
         pass
 
     # ENVIO
     @st.cache_data
-    def load_model_csv(_self) -> tuple[pd.DataFrame,str]:
-        file = pd.read_csv("files/modelo.csv",encoding="utf-8")
-        data_dict = pd.DataFrame(file.dtypes).reset_index()
-        data_dict.columns = ["Coluna","Tipo"]
-        return data_dict, file.to_csv(index=False)
-    
+    def load_model_csv(self) -> tuple[pd.DataFrame, str]:
+        """
+        Carrega um arquivo CSV e cria um dicionário de dados com tipos de colunas.
+        
+        Returns:
+            tuple: Contém o dicionário de dados e o modelo em formato CSV.
+        """
+        file = pd.read_csv("files/modelo.csv", encoding="utf-8")  # Carrega o arquivo CSV
+        data_dict = pd.DataFrame(file.dtypes).reset_index()  # Cria o dicionário com tipos de colunas
+        data_dict.columns = ["Coluna", "Tipo"]  # Renomeia as colunas
+        return data_dict, file.to_csv(index=False)  # Retorna o dicionário e o modelo como CSV
+
     @st.dialog("Dicionário de dados")
-    def download_csv_file(_self) -> None:
-        dicionario_dados, modelo = _self.load_model_csv()    
-        st.dataframe(dicionario_dados, use_container_width=True, hide_index=True)
+    def download_csv_file(self) -> None:
+        """
+        Exibe o dicionário de dados e permite o download do modelo CSV.
+        """
+        dicionario_dados, modelo = self.load_model_csv()    
+        st.dataframe(dicionario_dados, use_container_width=True, hide_index=True)  # Exibe o dicionário de dados
         st.download_button(
             label="Baixar modelo em CSV",
             data=modelo,
             file_name="modelo.csv",
             mime="text/csv",
         )
-        return None
 
-    # CONSOLIDACAO
-    def make_dataframe(self, data:dict) -> pd.DataFrame:
-        if (not data):
+    # CONSOLIDAÇÃO
+    def make_dataframe(self, data: dict) -> pd.DataFrame:
+        """
+        Converte um dicionário de dados em um DataFrame.
+
+        Args:
+            data (dict): Dados a serem convertidos em DataFrame.
+
+        Returns:
+            pd.DataFrame: DataFrame com os dados normalizados.
+
+        Raises:
+            Exception: Caso os dados estejam vazios ou inválidos.
+        """
+        if not data:
             raise Exception("Collection data not found.")
         else:
             try:
-                return pd.json_normalize(data)
+                return pd.json_normalize(data)  # Normaliza os dados para um formato tabular
             except ValueError as e:
                 raise Exception("Unable to load data from the collection: ", e)
-            
-    def make_result_dict(self, organization_cnes:int, year:int, month:int) -> dict:
+
+    def make_result_dict(self, organization_cnes: int, year: int, month: int) -> dict:
+        """
+        Cria um dicionário de resultados combinando as métricas calculadas.
+        
+        Args:
+            organization_cnes (int): Código da organização.
+            year (int): Ano dos dados.
+            month (int): Mês dos dados.
+
+        Returns:
+            dict: Dicionário contendo as informações e métricas calculadas.
+        """
         result_dict = {
             "organization_cnes": organization_cnes,
             "year": year,
@@ -77,8 +112,17 @@ class App(object):
             }
         }
         return result_dict
-            
-    def calculate(self,df:pd.DataFrame) -> dict:
+
+    def calculate(self, df: pd.DataFrame) -> dict:
+        """
+        Realiza os cálculos dos KPIs a partir de um DataFrame de entrada.
+
+        Args:
+            df (pd.DataFrame): DataFrame contendo os dados para os cálculos.
+
+        Returns:
+            dict: Dicionário com os resultados dos KPIs calculados.
+        """
         self._1_proporcao_partos_vaginais = self.kpi.kpi1( total_partos_vaginais = df.at[0,'partos_vaginais'],
                                                            total_partos_cesareos = df.at[0,'partos_cesareos'] )
         self._2_proporcao_reinternacoes_30_dias = self.kpi.kpi2 ( cli_total_reinternacoes_30_dias = df.at[0,'reinternacoes_clinicas'],
@@ -167,34 +211,89 @@ class App(object):
                                              year = int(df.at[0,'year']),
                                              month = int(df.at[0,'month']) )
         return result_dict
-    
-    def get_key_from_value(self,dict:dict,value):
+
+    def get_key_from_value(self, dict: dict, value):
+        """
+        Obtém a chave de um dicionário com base no valor correspondente.
+        
+        Args:
+            dict (dict): Dicionário a ser pesquisado.
+            value: Valor a ser encontrado.
+
+        Returns:
+            A chave correspondente ao valor encontrado ou None se não existir.
+        """
         return next((k for k, v in dict.items() if v == value), None)
-    
-    #UPLOAD
-    def valida_colunas(self, dataframe:pd.DataFrame, required_columns:list) -> list:
+
+    # UPLOAD
+    def valida_colunas(self, dataframe: pd.DataFrame, required_columns: list) -> list:
+        """
+        Valida se as colunas necessárias estão presentes no DataFrame.
+        
+        Args:
+            dataframe (pd.DataFrame): DataFrame a ser validado.
+            required_columns (list): Lista de colunas obrigatórias.
+
+        Returns:
+            list: Lista de colunas faltantes.
+        """
         valida_coluna = []
-        # Validar se todas as chaves obrigatórias estão presentes
         for col in required_columns:
             if col not in dataframe.columns:
                 valida_coluna.append(col)
         return valida_coluna
 
-    def valida_dados(self, dataframe:pd.DataFrame) -> list:
-        # Validar se os valores das chaves obrigatórias não são nulos
+    def valida_dados(self, dataframe: pd.DataFrame) -> list:
+        """
+        Valida se há dados nulos nas colunas do DataFrame.
+
+        Args:
+            dataframe (pd.DataFrame): DataFrame a ser validado.
+
+        Returns:
+            list: Lista de colunas com valores nulos.
+        """
         valida_dado = []
         valida_dado = dataframe.columns[dataframe.isnull().any()].to_list()
         return valida_dado    
-    
-    def valida_registros(self, dataframe:pd.DataFrame) -> int:
-        if len(dataframe) == 0 : return 1
-        else: return None
 
-    def verifica_competencias(self, dataframe:pd.DataFrame) -> int:
+    def valida_registros(self, dataframe: pd.DataFrame) -> int:
+        """
+        Verifica se o DataFrame possui registros.
+
+        Args:
+            dataframe (pd.DataFrame): DataFrame a ser verificado.
+
+        Returns:
+            int: Retorna 1 se o DataFrame estiver vazio, caso contrário, retorna None.
+        """
+        if len(dataframe) == 0:
+            return 1
+        else:
+            return None
+
+    def verifica_competencias(self, dataframe: pd.DataFrame) -> int:
+        """
+        Verifica o número de registros no DataFrame.
+
+        Args:
+            dataframe (pd.DataFrame): DataFrame a ser verificado.
+
+        Returns:
+            int: Número de registros.
+        """
         return len(dataframe)
 
     def valida_arquivo(self, arquivo):
+        """
+        Valida o arquivo CSV, verificando se contém as colunas e dados corretos.
 
+        Args:
+            arquivo: Arquivo CSV a ser validado.
+
+        Returns:
+            bool: Retorna True se o arquivo for válido, caso contrário, retorna False.
+        """
         required_columns = [
             'organization_cnes', 'year', 'month', 'partos_vaginais',
             'partos_cesareos', 'saidas_clinicas_anterior',
@@ -230,11 +329,11 @@ class App(object):
         invalid = None
         try:
             df = pd.read_csv(arquivo)
-            colunas_validadas = self.valida_colunas(df,required_columns)
+            colunas_validadas = self.valida_colunas(df, required_columns)
             if not colunas_validadas:
                 registros_validados = self.valida_registros(df)
                 if not registros_validados:
-                    dados_validados = self.valida_dados(df)        
+                    dados_validados = self.valida_dados(df)
         except ValueError as e:
             st.error(f"Erro ao ler arquivo. {e}")
             invalid = True
@@ -253,27 +352,45 @@ class App(object):
         else:
             st.info(f"Arquivo validado. Empresa {df['organization_cnes'][0]}.", icon="✅")
             return True, df
-   
+
     # HOME
     def valida_historico(self, raw_data: list) -> pd.DataFrame:
+        """
+        Valida e converte os dados de histórico para um DataFrame.
+        
+        Args:
+            raw_data (list): Dados brutos a serem validados.
 
+        Returns:
+            pd.DataFrame: DataFrame com os dados de histórico.
+        """
         if raw_data:
-            dataframe = pd.DataFrame(raw_data).T.drop('year',axis=0)
-            dataframe = pd.DataFrame(dataframe.apply(lambda x: not pd.isna(x.any()),axis=0)).T
-        else: dataframe = pd.DataFrame()
+            dataframe = pd.DataFrame(raw_data).T.drop('year', axis=0)
+            dataframe = pd.DataFrame(dataframe.apply(lambda x: not pd.isna(x.any()), axis=0)).T
+        else:
+            dataframe = pd.DataFrame()
 
         return dataframe
-    
-    def monta_historico(self, dados_metricas: pd.DataFrame, dados_resultados: pd.DataFrame) -> pd.DataFrame:
 
+    def monta_historico(self, dados_metricas: pd.DataFrame, dados_resultados: pd.DataFrame) -> pd.DataFrame:
+        """
+        Concatena e organiza os dados históricos de métricas e resultados em um único DataFrame.
+
+        Args:
+            dados_metricas (pd.DataFrame): Dados das métricas.
+            dados_resultados (pd.DataFrame): Dados dos resultados.
+
+        Returns:
+            pd.DataFrame: DataFrame contendo o histórico completo.
+        """
         df_metricas = self.valida_historico(dados_metricas)
         df_resultados = self.valida_historico(dados_resultados)
 
-        historico = pd.concat([df_metricas,df_resultados]).reset_index()
+        historico = pd.concat([df_metricas, df_resultados]).reset_index()
         historico['index'] = historico['index'].astype(str)
-        historico.at[0,'index'] = 'Enviado'
-        historico.at[1,'index'] = 'Consolidado'
-        historico.columns=["STATUS", "JAN", "FEV", "MAR", "ABR", "MAIO", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]
+        historico.at[0, 'index'] = 'Enviado'
+        historico.at[1, 'index'] = 'Consolidado'
+        historico.columns = ["STATUS", "JAN", "FEV", "MAR", "ABR", "MAIO", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]
         historico = historico.fillna(False)
 
         return historico
