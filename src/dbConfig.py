@@ -11,8 +11,8 @@ class dbConfig(object):
         """
         Inicializa a configuração do banco de dados usando as variáveis armazenadas em Streamlit secrets.
         """
-        self.conn_string = st.secrets.database.MONGO_URI
-        self.database = st.secrets.database.DATABASE
+        self.string_conexao = st.secrets.database.MONGO_URI
+        self.banco = st.secrets.database.DATABASE
 
     def validar_query(self, dicionario: dict, chaves_obrigatorias: list) -> bool:
         """
@@ -42,12 +42,12 @@ class dbConfig(object):
         
         return True
 
-    def get_metrics(self, collection_name: str, query: dict) -> dict:
+    def busca_metricas(self, nome_colecao: str, query: dict) -> dict:
         """
         Recupera métricas do banco de dados com base em uma consulta.
 
         Args:
-            collection_name (str): Nome da coleção MongoDB.
+            nome_colecao (str): Nome da coleção MongoDB.
             query (dict): Filtros da consulta.
 
         Returns:
@@ -57,37 +57,37 @@ class dbConfig(object):
             ValueError: Se parâmetros forem inválidos.
             Exception: Se ocorrer erro ao recuperar o documento.
         """
-        chaves_obrigatorias = ["organization_cnes", "year", "month"]
-        if not collection_name or not query:
+        chaves_obrigatorias = ["cd_cnes", "ano", "mes"]
+        if not nome_colecao or not query:
             raise ValueError("Os parâmetros não podem estar vazios.")
         
         if self.validar_query(query, chaves_obrigatorias):
-            if type(query["organization_cnes"]) is not int:
-                raise ValueError("Tipo da chave 'organization_cnes' incorreto. Esperado int.")
-            if type(query["year"]) is not int:
-                raise ValueError("Tipo da chave 'year' incorreto. Esperado int.")
-            if type(query["month"]) is not int:
-                raise ValueError("Tipo da chave 'month' incorreto. Esperado int.")
+            if type(query["cd_cnes"]) is not int:
+                raise ValueError("Tipo da chave 'cd_cnes' incorreto. Esperado int.")
+            if type(query["ano"]) is not int:
+                raise ValueError("Tipo da chave 'ano' incorreto. Esperado int.")
+            if type(query["mes"]) is not int:
+                raise ValueError("Tipo da chave 'mes' incorreto. Esperado int.")
             try:
-                client = db.MongoClient(self.conn_string)
-                database = client.get_database(self.database)
-                collection = database.get_collection(collection_name)
-                metrics = collection.find_one(query)
-                client.close()
+                cursor = db.MongoClient(self.string_conexao)
+                banco = cursor.get_database(self.banco)
+                colecao = banco.get_collection(nome_colecao)
+                metricas = colecao.find_one(query)
+                cursor.close()
             except Exception as e:
-                raise Exception("Unable to retrieve the document due to the following error: ", e)
-            if not metrics:
-                raise Exception("Collection not found.")
+                raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
+            if not metricas:
+                raise Exception("Coleção não encontrada.")
             else:
-                return metrics
+                return metricas
 
     @st.cache_data(show_spinner=False)
-    def get_organizations(_self, collection_name: str) -> dict:
+    def busca_empresas(_self, nome_colecao: str) -> dict:
         """
         Recupera organizações ativas do banco de dados.
 
         Args:
-            collection_name (str): Nome da coleção MongoDB.
+            nome_colecao (str): Nome da coleção MongoDB.
 
         Returns:
             dict: Lista de organizações ativas formatadas.
@@ -95,25 +95,25 @@ class dbConfig(object):
         Raises:
             Exception: Se ocorrer erro ao recuperar os documentos.
         """
-        query = {"status": "Active"}
+        query = {"status": "Ativo"}
         try:
-            client = db.MongoClient(_self.conn_string)
-            database = client.get_database(_self.database)
-            collection = database.get_collection(collection_name)
-            organizations = collection.find(query)
-            names = [f"{i['name']} ({i['cnes']})" for i in organizations]
-            client.close()
+            cursor = db.MongoClient(_self.string_conexao)
+            banco = cursor.get_database(_self.banco)
+            colecao = banco.get_collection(nome_colecao)
+            empresas = colecao.find(query)
+            lista_empresas = [f"{empresa['nome']} ({empresa['cd_cnes']})" for empresa in empresas]
+            cursor.close()
         except Exception as e:
-            raise Exception("Unable to retrieve the document due to the following error: ", e)
-        return names
+            raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
+        return lista_empresas
 
     @st.cache_data(show_spinner=False)
-    def get_last_consolidation(_self, collection_name: str, cnes: int) -> list:
+    def busca_ultima_consolidacao(_self, nome_colecao: str, cnes: int) -> list:
         """
         Recupera o último registro de consolidação de dados com base no CNES.
 
         Args:
-            collection_name (str): Nome da coleção MongoDB.
+            nome_colecao (str): Nome da coleção MongoDB.
             cnes (int): CNES da organização.
 
         Returns:
@@ -123,28 +123,28 @@ class dbConfig(object):
             IndexError: Se não houver resultados.
             Exception: Se ocorrer erro ao recuperar os documentos.
         """
-        query = {"organization_cnes": int(cnes)}
-        fields = {"year": 1, "month": 1, "_id": 0}
-        sorting = [("year", db.DESCENDING), ("month", db.DESCENDING)]
+        query = {"cd_cnes": int(cnes)}
+        campos = {"ano": 1, "mes": 1, "_id": 0}
+        ordem = [("ano", db.DESCENDING), ("mes", db.DESCENDING)]
         try:
-            client = db.MongoClient(_self.conn_string)
-            database = client.get_database(_self.database)
-            collection = database.get_collection(collection_name)
-            last_consolidation = collection.find(query, fields).sort(sorting)
-            year_month = last_consolidation.to_list()[0]
-            client.close()
+            cursor = db.MongoClient(_self.string_conexao)
+            banco = cursor.get_database(_self.banco)
+            colecao = banco.get_collection(nome_colecao)
+            ultima_consolidacao = colecao.find(query, campos).sort(ordem)
+            consolidacao = ultima_consolidacao.to_list()[0]
+            cursor.close()
         except IndexError:
             return None
         except Exception as e:
-            raise Exception("Unable to retrieve the document due to the following error: ", e)
-        return year_month
+            raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
+        return consolidacao
 
-    def load_data(self, collection_name: str, query: dict) -> bool:
+    def carrega_dados(self, nome_colecao: str, query: dict) -> bool:
         """
         Insere dados no banco de dados.
 
         Args:
-            collection_name (str): Nome da coleção MongoDB.
+            nome_colecao (str): Nome da coleção MongoDB.
             query (dict): Dados a serem inseridos.
 
         Returns:
@@ -154,32 +154,32 @@ class dbConfig(object):
             ValueError: Se parâmetros forem inválidos.
             Exception: Se ocorrer erro ao inserir os documentos.
         """
-        chaves_obrigatorias = ['organization_cnes', 'year', 'month', 'data']
-        if not collection_name or not query:
+        chaves_obrigatorias = ['cd_cnes', 'ano', 'mes', 'data']
+        if not nome_colecao or not query:
             raise ValueError("Os parâmetros não podem estar vazios.")
         if self.validar_query(query, chaves_obrigatorias):
-            if type(query["organization_cnes"]) is not int:
-                raise ValueError("Tipo da chave 'organization_cnes' incorreto. Esperado int.")
+            if type(query["cd_cnes"]) is not int:
+                raise ValueError("Tipo da chave 'cd_cnes' incorreto. Esperado int.")
         try:
-            client = db.MongoClient(self.conn_string)
-            database = client.get_database(self.database)
-            collection = database.get_collection(collection_name)
-            result = collection.insert_one(query)
-            client.close()
+            cursor = db.MongoClient(self.string_conexao)
+            banco = cursor.get_database(self.banco)
+            colecao = banco.get_collection(nome_colecao)
+            retorno = colecao.insert_one(query)
+            cursor.close()
         except Exception as e:
-            raise Exception("Unable to retrieve the document due to the following error: ", e)
-        if not result.acknowledged:
-            raise Exception("DB return missing.")
+            raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
+        if not retorno.acknowledged:
+            raise Exception("Retorno do banco de dados não encontrado.")
         else:
-            return result.acknowledged
+            return retorno.acknowledged
 
-    def upload_arquivo(self, dataframe: pd.DataFrame, collection_name: str) -> tuple[bool, str]:
+    def upload_arquivo(self, dataframe: pd.DataFrame, nome_colecao: str) -> tuple[bool, str]:
         """
         Faz upload de um DataFrame para a coleção MongoDB.
 
         Args:
             dataframe (pd.DataFrame): DataFrame a ser inserido.
-            collection_name (str): Nome da coleção MongoDB.
+            nome_colecao (str): Nome da coleção MongoDB.
 
         Returns:
             tuple: Sucesso da operação e número de registros inseridos.
@@ -190,31 +190,31 @@ class dbConfig(object):
         if dataframe:
             query = dataframe.to_dict(orient='records')
             try:
-                client = db.MongoClient(config.MONGO_URI)
-                database = client.get_database(config.DATABASE)
-                collection = database.get_collection(collection_name)
+                cursor = db.MongoClient(self.string_conexao)
+                banco = cursor.get_database(self.banco)
+                colecao = banco.get_collection(nome_colecao)
                 if len(query) == 1:
-                    inserted_data = collection.insert_one(query)
-                    registers_num = len(inserted_data.inserted_id)
+                    dados_inseridos = colecao.insert_one(query)
+                    numero_registros = len(dados_inseridos.inserted_id)
                 else:
-                    inserted_data = collection.insert_many(query)
-                    registers_num = len(inserted_data.inserted_ids)
-                client.close()
-                return inserted_data.acknowledged, str(registers_num)
+                    dados_inseridos = colecao.insert_many(query)
+                    numero_registros = len(dados_inseridos.inserted_ids)
+                cursor.close()
+                return numero_registros.acknowledged, str(numero_registros)
             except:
-                error = "Unable to insert data due to a internal server error"
+                error = "Não foi possível salvar os dados devido erro interno do servidor."
                 return False, error
         else:
             return False, "Dados inválidos"
 
     @st.cache_data(show_spinner=False)
-    def get_summary(_self, organization_cnes: int, year: int):
+    def busca_resumo(_self, cd_cnes: int, ano: int):
         """
         Recupera resumo de métricas e resultados com base em CNES e ano.
 
         Args:
-            organization_cnes (int): CNES da organização.
-            year (int): Ano da consulta.
+            cd_cnes (int): CNES da organização.
+            ano (int): Ano da consulta.
 
         Returns:
             tuple: Métricas e resultados encontrados.
@@ -222,21 +222,59 @@ class dbConfig(object):
         Raises:
             Exception: Se ocorrer erro ao recuperar os documentos.
         """
-        query = {"organization_cnes": organization_cnes, "year": year}
-        fields = {"year": 1, "month": 1, "_id": 0}
+        query = {"cd_cnes": cd_cnes, "ano": ano}
+        campos = {"ano": 1, "mes": 1, "_id": 0}
         try:
-            client = db.MongoClient(_self.conn_string)
-            database = client.get_database(_self.database)
-            col_results = database.get_collection("kpi_results")
-            find_results = col_results.find(query, fields)
-            results = find_results.to_list()
+            cursor = db.MongoClient(_self.string_conexao)
+            banco = cursor.get_database(_self.banco)
+            colecao_resultados = banco.get_collection("resultados_kpis")
+            resultados = colecao_resultados.find(query, campos)
+            lista_resultados = resultados.to_list()
 
-            col_metrics = database.get_collection("metrics")
-            find_metrics = col_metrics.find(query, fields)
-            metrics = find_metrics.to_list()
+            colecao_metricas = banco.get_collection("metricas")
+            metricas = colecao_metricas.find(query, campos)
+            lista_metricas = metricas.to_list()
 
-            client.close()
+            cursor.close()
         except Exception as e:
-            raise Exception("Unable to retrieve the document due to the following error: ", e)
+            raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
 
-        return metrics, results
+        return lista_metricas, lista_resultados
+
+    def busca_ultimo_mes(self, nome_colecao: str, cnes: int, ano: int, mes: int) -> list:
+        """
+        Recupera o mês anterior ao que está sendo consolidado.
+
+        Args:
+            nome_colecao (str): Nome da coleção MongoDB.
+            cnes (int): CNES da organização.
+            ano (int): Ano da consulta.
+            mes (int): Mês da consulta.
+
+        Returns:
+            list: Dados do último registro encontrado.
+
+        Raises:
+            IndexError: Se não houver resultados.
+            Exception: Se ocorrer erro ao recuperar os documentos.
+        """
+
+        if mes == 1:
+            mes = 12
+            ano = ano-1
+        else:
+            mes = mes-1
+
+        query = {"cd_cnes": int(cnes),"ano": int(ano),"mes": int(mes)}
+        try:
+            cursor = db.MongoClient(self.string_conexao)
+            banco = cursor.get_database(self.banco)
+            colecao = banco.get_collection(nome_colecao)
+            mes_anterior = colecao.find(query)
+            anterior = mes_anterior.to_list()[0]
+            cursor.close()
+        except IndexError:
+            return None
+        except Exception as e:
+            raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
+        return anterior

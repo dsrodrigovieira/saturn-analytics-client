@@ -13,23 +13,23 @@ db = dbConfig()
 st.title("Envio de métricas")
 
 # Cria um botão para download do dicionário de dados
-btn_dic_dados = st.button("Dicionário de dados")
+btn_dicionario_dados = st.button("Dicionário de dados")
 
 # Cria um componente para upload de arquivo CSV
-uploaded_file = st.file_uploader( label="Selecione o arquivo",
-                                  type='csv',
-                                  help="Insira um arquivo no formato CSV para upload" )
+arquivo_carregado = st.file_uploader( label="Selecione o arquivo",
+                                      type='csv',
+                                      help="Insira um arquivo no formato CSV para upload" )
 
-# Verifica se a chave "download_csv_file" está no estado da sessão para controle da exibição do dialog
-if "download_csv_file" not in st.session_state:
-    if btn_dic_dados:
+# Verifica se a chave "download_arquivo_csv" está no estado da sessão para controle da exibição do dialog
+if "download_arquivo_csv" not in st.session_state:
+    if btn_dicionario_dados:
         # Realiza o download do arquivo modelo
-        app.download_csv_file()
+        app.download_arquivo_csv()
 
 # Verifica se um arquivo foi carregado
-if uploaded_file:
+if arquivo_carregado:
     # Valida o arquivo enviado
-    validacao, dados = app.valida_arquivo(arquivo=uploaded_file)
+    validacao, dados = app.valida_arquivo(arquivo=arquivo_carregado)
     if validacao:
         # Cria um botão para enviar os dados validados
         if st.button( label="Enviar dados",
@@ -40,13 +40,13 @@ if uploaded_file:
                       icon="⌛" )            
             
             # Realiza o upload do arquivo no banco de dados
-            ack, var = db.upload_arquivo( dataframe=dados,
-                                          collection_name="metrics" )
+            confirmacao, num_registros = db.upload_arquivo( dataframe=dados,
+                                                            nome_colecao="metricas" )
             
             # Verifica se o upload foi bem-sucedido e exibe mensagens de feedback
-            if ack:
-                st.toast( body=f'Upload concluído com sucesso! {var} registros incluídos',
+            if confirmacao:
+                st.toast( body=f'Upload concluído com sucesso! {num_registros} registros incluídos',
                           icon="✅" )
             else:
-                st.toast( body=f'Ocorreu um erro! {var}',
+                st.toast( body=f'Ocorreu um erro! {num_registros}',
                           icon="☠️" )

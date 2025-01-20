@@ -15,25 +15,25 @@ st.title("Início")
 # Cria um contêiner para organizar os elementos da interface
 with st.container():
     # Define duas colunas
-    col1, col2 = st.columns([3, 2], vertical_alignment='bottom')
+    col1, col2 = st.columns([3, 4], vertical_alignment='bottom')
         
     with col1:
         st.header("Resumo")
     
     with col2:
-        col11, col12 = st.columns(2, vertical_alignment='center')
+        col11, col12 = st.columns([5,3], vertical_alignment='center')
         
         # Primeiro filtro: seleção de organização (empresa)
-        filter_organization = col11.selectbox(
+        filtro_empresa = col11.selectbox(
             placeholder="Selecione a empresa",
             label="Empresa:",
-            options=db.get_organizations("organizations"),
+            options=db.busca_empresas("empresas"),
             label_visibility="collapsed",
             index=None
         )
         
         # Segundo filtro: controle segmentado para seleção do ano
-        filter_year = col12.segmented_control(
+        filtro_ano = col12.segmented_control(
             "Ano",
             options=[2023, 2024],
             label_visibility="collapsed"
@@ -43,27 +43,30 @@ with st.container():
 with st.empty():
     with st.container():
         # Verifica se os filtros de organização e ano foram selecionados
-        if not filter_organization or not filter_year:
+        if not filtro_empresa or not filtro_ano:
             # Exibe uma mensagem informativa caso os filtros não estejam preenchidos
             st.info("Selecione a empresa e o ano", icon="ℹ️")
         else:
             # Extrai o código CNES (identificador da organização) da seleção usando regex
-            organization_cnes = re.search(r"\d+", filter_organization).group()
+            cd_cnes = re.search(r"\d+", filtro_empresa).group()
             
             # Exibe um spinner enquanto os dados são carregados
             with st.spinner(text="Carregando..."):
                 # Recupera os dados de métricas e resultados do banco de dados
-                raw_metrics, raw_results = db.get_summary(
-                    organization_cnes=int(organization_cnes),
-                    year=int(filter_year)
+                metricas_bruto, resultados_bruto = db.busca_resumo(
+                    cd_cnes=int(cd_cnes),
+                    ano=int(filtro_ano)
                 )
                 
                 # Monta o histórico dos dados utilizando um método da classe App
-                historico = app.monta_historico(raw_metrics, raw_results)
+                historico = app.monta_historico(
+                    dados_metricas=metricas_bruto,
+                    dados_resultados=resultados_bruto
+                )
                 
                 # Exibe os dados em uma tabela
                 st.data_editor(
-                    historico,
+                    data=historico,
                     use_container_width=True,
                     disabled=True,
                     hide_index=True

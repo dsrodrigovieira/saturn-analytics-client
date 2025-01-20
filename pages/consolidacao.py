@@ -17,27 +17,27 @@ with st.container():
 # Container para seleção de empresa e exibição de consolidações
 with st.container():
     # Cria um dropdown para selecionar a empresa
-    box_organization = st.selectbox( placeholder="Selecione a empresa",
-                                     label="Empresa:",
-                                     options=db.get_organizations("organizations"),
-                                     index=None
-                                    )
+    box_empresa = st.selectbox( placeholder="Selecione a empresa",
+                                label="Empresa:",
+                                options=db.busca_empresas(nome_colecao="empresas"),
+                                index=None
+                               )
     
     # Verifica se uma empresa foi selecionada
-    if box_organization:
+    if box_empresa:
         # Extrai o código CNES da empresa usando regex
-        organization_cnes = re.search(r"\d+", box_organization).group()
+        cd_cnes = re.search(r"\d+", box_empresa).group()
         
         with st.empty():
             with st.container():          
                 with st.spinner(text="Carregando..."):
                     # Obtém a última consolidação da empresa selecionada
-                    last_consolidation = db.get_last_consolidation( collection_name="kpi_results",
-                                                                    cnes=organization_cnes )
+                    ultima_consolidacao = db.busca_ultima_consolidacao( nome_colecao="resultados_kpis",
+                                                                        cnes=cd_cnes )
                     
                     # Exibe informações sobre a última consolidação
-                    if last_consolidation:
-                        info = f"Último mês consolidado: {config.MONTH_MASK[last_consolidation['month']]} de {last_consolidation['year']}"
+                    if ultima_consolidacao:
+                        info = f"Último mês consolidado: {config.MONTH_MASK[ultima_consolidacao['mes']]} de {ultima_consolidacao['ano']}"
                         st.info(info, icon="ℹ️")
                     else:
                         # Exibe aviso caso nenhuma consolidação seja encontrada
@@ -49,15 +49,15 @@ with st.container():
     
     # Dropdown para selecionar o ano
     with col1:
-        var_year = st.selectbox( placeholder="Selecione o ano",
-                                 label="Ano:",
-                                 options=config.YEARS,
-                                 index=None
+        valor_ano = st.selectbox( placeholder="Selecione o ano",
+                                  label="Ano:",
+                                  options=config.YEARS,
+                                  index=None
                                 )
     
     # Dropdown para selecionar o mês
     with col2:
-        var_month = st.selectbox( placeholder="Selecione o mês",
+        valor_mes = st.selectbox( placeholder="Selecione o mês",
                                   label="Mês:",
                                   options=config.MONTH_MASK.values(),
                                   index=None
@@ -69,23 +69,24 @@ with st.container():
         st.toast("Consolidando...", icon="\u231B")
         
         # Obtém métricas da empresa para o ano e mês selecionados
-        metricas = db.get_metrics( collection_name="metrics",
-                                    query={ "organization_cnes": int(organization_cnes),
-                                            "year": int(var_year),
-                                            "month": app.get_key_from_value(config.MONTH_MASK, var_month) } )    
+        metricas = db.busca_metricas( nome_colecao="metricas",
+                                      query={ "cd_cnes": int(cd_cnes),
+                                              "ano": int(valor_ano),
+                                              "mes": app.busca_chave_pelo_valor(dicionario=config.MONTH_MASK, valor=valor_mes) } )    
         
         # Cria um DataFrame a partir dos dados obtidos
-        df = app.make_dataframe(data=metricas)
+        dataframe = app.cria_dataframe(dados=metricas)
         
         # Realiza cálculos de consolidação com base no DataFrame
-        result_query = app.calculate(df=df)
+        query_resultados = app.calcular(dados=dataframe)
         
         # Salva os resultados no banco de dados
-        status = db.load_data(collection_name="kpi_results", query=result_query)              
+        status = db.carrega_dados(nome_colecao="resultados_kpis", query=query_resultados)              
         
         # Exibe notificações de sucesso ou erro com base no status
         if status:
             st.toast(f'Concluído!', icon="✅")
-            db.get_last_consolidation.clear()  # Limpa o cache da função para dados atualizados
+            db.busca_ultima_consolidacao.clear()  # Limpa o cache da função para dados atualizados
+            st.rerun()
         else:
             st.toast('Ocorreu um erro!', icon="☠️")

@@ -80,7 +80,7 @@ class KPI(object):
         self.rkpi_12 = None
         self.rkpi_13 = None
         self.rkpi_14 = None
-        self.rkpi_data = None
+        self.dados_resultado_kpi = None
         pass
 
     def validar_kwargs(self, kwargs, chaves_obrigatorias):
@@ -131,21 +131,21 @@ class KPI(object):
             mascara (str): Máscara usada para filtrar as variáveis da classe.
         
         Returns:
-            tuple: Contém o dicionário rkpi_data, o nome da variável principal e a estratificação.
+            tuple: Contém o dicionário dados_resultado_kpi, o nome da variável principal e a estratificação.
         """
-        rkpi_data = self.cria_variavel(mascara)
-        nome = re.match("^.+_\\d+", list(rkpi_data.keys())[0]).group(0)
+        dados_resultado_kpi = self.cria_variavel(mascara)
+        nome = re.match("^.+_\\d+", list(dados_resultado_kpi.keys())[0]).group(0)
         estratificacao = []
 
-        if type(rkpi_data) in [float, int]:
+        if type(dados_resultado_kpi) in [float, int]:
             pass  # Caso os dados não sejam um dicionário, não há estratificação
         else:
-            for key in rkpi_data.keys():
+            for key in dados_resultado_kpi.keys():
                 if key != nome:
-                    estratificacao.append({ "type": key.replace(nome+'_', ''), "value": rkpi_data[nome] })
+                    estratificacao.append({ "tipo": key.replace(nome+'_', ''), "valor": dados_resultado_kpi[nome] })
                 else:
                     break
-        return rkpi_data, nome, estratificacao
+        return dados_resultado_kpi, nome, estratificacao
     
     def cria_objeto(self, mascara: str) -> dict:
         """
@@ -157,8 +157,8 @@ class KPI(object):
         Returns:
             dict: Objeto do KPI com o valor e a estratificação.
         """
-        rkpi_data, nome, estratificacao = self.cria_estratificacao(mascara)
-        return { nome: { "value": rkpi_data[nome], "variation": "c", "estratification": estratificacao } }
+        dados_resultado_kpi, nome, estratificacao = self.cria_estratificacao(mascara)
+        return { nome: { "valor": dados_resultado_kpi[nome], "variacao": "c", "estratificacao": estratificacao } }
 
     def kpi_taxa(self, numerador: int, denominador: int) -> float:
         """
