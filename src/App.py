@@ -30,7 +30,7 @@ class App(object):
 
     # ENVIO
     @st.cache_data
-    def load_model_csv(self) -> tuple[pd.DataFrame, str]:
+    def load_model_csv(_self) -> tuple[pd.DataFrame, str]:
         """
         Carrega um arquivo CSV e cria um dicionário de dados com tipos de colunas.
         
@@ -43,11 +43,11 @@ class App(object):
         return data_dict, file.to_csv(index=False)  # Retorna o dicionário e o modelo como CSV
 
     @st.dialog("Dicionário de dados")
-    def download_csv_file(self) -> None:
+    def download_csv_file(_self) -> None:
         """
         Exibe o dicionário de dados e permite o download do modelo CSV.
         """
-        dicionario_dados, modelo = self.load_model_csv()    
+        dicionario_dados, modelo = _self.load_model_csv()    
         st.dataframe(dicionario_dados, use_container_width=True, hide_index=True)  # Exibe o dicionário de dados
         st.download_button(
             label="Baixar modelo em CSV",
