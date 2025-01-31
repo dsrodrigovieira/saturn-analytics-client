@@ -38,11 +38,9 @@ if arquivo_carregado:
             # Exibe uma mensagem de upload em andamento
             st.toast( body="Fazendo upload do arquivo...",
                       icon="⌛" )            
-            
             # Realiza o upload do arquivo no banco de dados
             confirmacao, num_registros = db.upload_arquivo( dataframe=dados,
                                                             nome_colecao="metricas" )
-            
             # Verifica se o upload foi bem-sucedido e exibe mensagens de feedback
             if confirmacao:
                 st.toast( body=f'Upload concluído com sucesso! {num_registros} registros incluídos',
