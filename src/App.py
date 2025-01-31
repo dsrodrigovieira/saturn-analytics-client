@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 from src.KPI import KPI
+import config
 
 class App(object):
     """
@@ -94,7 +95,7 @@ class App(object):
             "cd_cnes": cd_cnes,
             "ano": ano,
             "mes": mes,
-            "data": {
+            "dados": {
                 **self._1_proporcao_partos_vaginais,
                 **self._2_proporcao_reinternacoes_30_dias,
                 **self._3_taxa_pcr,
@@ -125,10 +126,10 @@ class App(object):
         """
         self._1_proporcao_partos_vaginais = self.kpi.kpi1( total_partos_vaginais = dados.at[0,'partos_vaginais'],
                                                            total_partos_cesareos = dados.at[0,'partos_cesareos'] )
-        self._2_proporcao_reinternacoes_30_dias = self.kpi.kpi2 ( cli_total_reinternacoes_30_dias = dados.at[0,'reinternacoes_clinicas'],
-                                                                  cli_total_saida_mes_anterior = dados.at[0,'saidas_clinicas_anterior'],
-                                                                  cir_total_reinternacoes_30_dias = dados.at[0,'reinternacoes_cirurgicas'],
-                                                                  cir_total_saida_mes_anterior = dados.at[0,'saidas_cirurgicas_anterior'] )
+        self._2_proporcao_reinternacoes_30_dias = self.kpi.kpi2 ( cli_total_reinternacoes_30_dias = dados.at[0,'cli_reinternacoes'],
+                                                                  cli_total_saida_mes_anterior = dados.at[0,'cli_saidas_anterior'],
+                                                                  cir_total_reinternacoes_30_dias = dados.at[0,'cir_reinternacoes'],
+                                                                  cir_total_saida_mes_anterior = dados.at[0,'cir_saidas_anterior'] )
         self._3_taxa_pcr = self.kpi.kpi3( total_pcr = dados.at[0,'pcr_eventos'],
                                           total_pacientes_dia = dados.at[0,'pacientes_dia'] )
         self._4_taxa_mortalidade = self.kpi.kpi4( cli_neo_precoce_total_obitos = dados.at[0,'cli_neo_precoce_obitos'],
@@ -165,10 +166,10 @@ class App(object):
                                                         cir_idoso_total_saidas = dados.at[0,'cir_idoso_saidas'] )
         self._6_tempo_medio_emergencia = self.kpi.kpi6( total_tempo_entrada_termino = dados.at[0,'total_tempo_permanencia_emergencia_hr'],
                                                         total_pacientes_buscaram_atendimento = dados.at[0,'total_pacientes_emergencia'] )
-        self._7_tempo_medio_espera_emergencia = self.kpi.kpi7( nvl2_total_tempo_espera = dados.at[0,'tempo_total_emergencia_nivel2_min'],
-                                                               nvl2_total_pacientes_buscaram_atendimento = dados.at[0,'pacientes_emergencia_nivel2'],
-                                                               nvl3_total_tempo_espera = dados.at[0,'tempo_total_emergencia_nivel3_min'],
-                                                               nvl3_total_pacientes_buscaram_atendimento = dados.at[0,'pacientes_emergencia_nivel3'] )
+        self._7_tempo_medio_espera_emergencia = self.kpi.kpi7( nvl2_total_tempo_espera = dados.at[0,'tempo_total_emergencia_nvl2_min'],
+                                                               nvl2_total_pacientes_buscaram_atendimento = dados.at[0,'pacientes_emergencia_nvl2'],
+                                                               nvl3_total_tempo_espera = dados.at[0,'tempo_total_emergencia_nvl3_min'],
+                                                               nvl3_total_pacientes_buscaram_atendimento = dados.at[0,'pacientes_emergencia_nvl3'] )
         self._8_taxa_atb_profilatico = self.kpi.kpi8( total_cirurgias_limpas_com_atb = dados.at[0,'cirurgias_com_antibiotico'],
                                                       total_cirurgias_limpas = dados.at[0,'total_cirurgias_limpas'] )
         self._9_taxa_infeccao_cirurgia_limpa = self.kpi.kpi9( total_isc_30_dias = dados.at[0,'total_infeccoes'],
@@ -294,42 +295,11 @@ class App(object):
         Returns:
             bool: Retorna True se o arquivo for válido, caso contrário, retorna False.
         """
-        colunas_obrigatorias = [
-            'cd_cnes', 'ano', 'mes', 'partos_vaginais',
-            'partos_cesareos', 'saidas_clinicas_anterior',
-            'saidas_cirurgicas_anterior', 'reinternacoes_clinicas',
-            'reinternacoes_cirurgicas', 'pacientes_dia', 'pcr_eventos',
-            'cli_neo_precoce_saidas', 'cli_neo_precoce_obitos',
-            'cli_neo_precoce_pacientes_dia', 'cli_neo_tardio_saidas',
-            'cli_neo_tardio_obitos', 'cli_neo_tardio_pacientes_dia',
-            'cli_pedi_saidas', 'cli_pedi_obitos', 'cli_pedi_pacientes_dia',
-            'cli_ad_saidas', 'cli_ad_obitos', 'cli_ad_pacientes_dia',
-            'cli_idoso_saidas', 'cli_idoso_obitos', 'cli_idoso_pacientes_dia',
-            'cir_neo_precoce_saidas', 'cir_neo_precoce_obitos',
-            'cir_neo_precoce_pacientes_dia', 'cir_neo_tardio_saidas',
-            'cir_neo_tardio_obitos', 'cir_neo_tardio_pacientes_dia',
-            'cir_pedi_saidas', 'cir_pedi_obitos', 'cir_pedi_pacientes_dia',
-            'cir_ad_saidas', 'cir_ad_obitos', 'cir_ad_pacientes_dia',
-            'cir_idoso_saidas', 'cir_idoso_obitos', 'cir_idoso_pacientes_dia',
-            'total_pacientes_emergencia', 'total_tempo_permanencia_emergencia_hr',
-            'pacientes_emergencia_nivel2', 'pacientes_emergencia_nivel3',
-            'tempo_total_emergencia_nivel2_min', 'tempo_total_emergencia_nivel3_min',
-            'total_cirurgias_limpas', 'cirurgias_com_antibiotico',
-            'total_cirurgias_limpas_anterior', 'total_infeccoes', 'ui_neo_cvc_dia',
-            'ui_neo_infec', 'uti_neo_cvc_dia', 'uti_neo_infec', 'ui_pedi_cvc_dia',
-            'ui_pedi_infec', 'uti_pedi_cvc_dia', 'uti_pedi_infec', 'ui_ad_cvc_dia',
-            'ui_ad_infec', 'uti_ad_cvc_dia', 'uti_ad_infec', 'ui_neo_cvd_dia',
-            'ui_neo_itu', 'uti_neo_cvd_dia', 'uti_neo_itu', 'ui_pedi_cvd_dia',
-            'ui_pedi_itu', 'uti_pedi_cvd_dia', 'uti_pedi_itu', 'ui_ad_cvd_dia',
-            'ui_ad_itu', 'uti_ad_cvd_dia', 'uti_ad_itu', 'cli_total_pacientes',
-            'cli_profilaxia', 'cir_orto_total_pacientes', 'cir_orto_profilaxia',
-            'cir_nao_orto_total_pacientes', 'cir_nao_orto_profilaxia',
-            'quedas_com_dano', 'eventos_sentinela'
-        ]
+        
         invalido = None
         try:
             dataframe = pd.read_csv(arquivo)
-            colunas_validadas = self.valida_colunas(dataframe, colunas_obrigatorias)
+            colunas_validadas = self.valida_colunas(dataframe, config.COLUNAS_OBIGATORIAS)
             if not colunas_validadas:
                 registros_validados = self.valida_registros(dataframe)
                 if not registros_validados:
@@ -387,10 +357,12 @@ class App(object):
         df_resultados = self.valida_historico(dados_resultados)
 
         historico = pd.concat([df_metricas, df_resultados]).reset_index()
-        historico['index'] = historico['index'].astype(str)
-        historico.at[0, 'index'] = 'Enviado'
-        historico.at[1, 'index'] = 'Consolidado'
-        historico.columns = ["STATUS", "JAN", "FEV", "MAR", "ABR", "MAIO", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]
-        historico = historico.fillna(False)
-
-        return historico
+        if(historico.shape[1] != 13): # TODO verificar validação das colunas
+            return None
+        else:
+            historico['index'] = historico['index'].astype(str)
+            historico.at[0, 'index'] = 'Enviado'
+            historico.at[1, 'index'] = 'Consolidado'
+            historico.columns = ["STATUS", "JAN", "FEV", "MAR", "ABR", "MAIO", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]
+            historico = historico.fillna(False)    
+            return historico
