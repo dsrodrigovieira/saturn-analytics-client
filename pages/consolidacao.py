@@ -81,7 +81,7 @@ with st.container():
         query_resultados = app.calcular(dados=dataframe)
         
         # Salva os resultados no banco de dados
-        status = db.carrega_dados(nome_colecao="resultados_kpis", query=query_resultados)              
+        status = db.carrega_dados(nome_colecao="resultados_kpis", query=query_resultados)  
         
         # Exibe notificações de sucesso ou erro com base no status
         if status:
