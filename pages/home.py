@@ -64,10 +64,14 @@ with st.empty():
                     dados_resultados=resultados_bruto
                 )
                 
-                # Exibe os dados em uma tabela
-                st.data_editor(
-                    data=historico,
-                    use_container_width=True,
-                    disabled=True,
-                    hide_index=True
-                )
+                if (historico.empty):
+                    info = f"Sem dados para exibir"
+                    st.info(info, icon="ℹ️")
+                else:
+                    # Exibe os dados em uma tabela
+                    st.data_editor(
+                        data=historico,
+                        use_container_width=True,
+                        disabled=True,
+                        hide_index=True
+                    )
