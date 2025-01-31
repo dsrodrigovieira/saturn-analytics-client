@@ -120,8 +120,11 @@ class KPI(object):
         
         Returns:
             dict: Dicionário com as variáveis filtradas.
-        """
-        return {name: value for name, value in self.__dict__.items() if name.startswith(mascara)}
+        """        
+        if mascara == 'rkpi_1':            
+            return {name: value for name, value in self.__dict__.items() if name==(mascara)}
+        else:            
+            return {name: value for name, value in self.__dict__.items() if name.startswith(mascara)}
 
     def cria_estratificacao(self, mascara: str) -> dict:
         """
@@ -133,16 +136,16 @@ class KPI(object):
         Returns:
             tuple: Contém o dicionário dados_resultado_kpi, o nome da variável principal e a estratificação.
         """
-        dados_resultado_kpi = self.cria_variavel(mascara)
+        dados_resultado_kpi = self.cria_variavel(mascara)        
         nome = re.match("^.+_\\d+", list(dados_resultado_kpi.keys())[0]).group(0)
         estratificacao = []
 
         if type(dados_resultado_kpi) in [float, int]:
             pass  # Caso os dados não sejam um dicionário, não há estratificação
         else:
-            for key in dados_resultado_kpi.keys():
+            for key in dados_resultado_kpi.keys():                
                 if key != nome:
-                    estratificacao.append({ "tipo": key.replace(nome+'_', ''), "valor": dados_resultado_kpi[nome] })
+                    estratificacao.append({ "tipo": key.replace(nome+'_', ''), "valor": dados_resultado_kpi[key] })                    
                 else:
                     break
         return dados_resultado_kpi, nome, estratificacao
@@ -157,8 +160,8 @@ class KPI(object):
         Returns:
             dict: Objeto do KPI com o valor e a estratificação.
         """
-        dados_resultado_kpi, nome, estratificacao = self.cria_estratificacao(mascara)
-        return { nome: { "valor": dados_resultado_kpi[nome], "variacao": "c", "estratificacao": estratificacao } }
+        dados_resultado_kpi, nome, estratificacao = self.cria_estratificacao(mascara)        
+        return { nome: { "valor": dados_resultado_kpi[nome], "variacao": "", "estratificacao": estratificacao } }
 
     def kpi_taxa(self, numerador: int, denominador: int) -> float:
         """
@@ -198,7 +201,7 @@ class KPI(object):
             float: Densidade calculada.
         """
         return (numerador / denominador) * 1000
-    
+
     def kpi1(self, **kwargs) -> dict:
         """
         Calcula a proporção de partos vaginais em relação ao total de partos.
