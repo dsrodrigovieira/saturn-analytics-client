@@ -154,7 +154,7 @@ class dbConfig(object):
             ValueError: Se parâmetros forem inválidos.
             Exception: Se ocorrer erro ao inserir os documentos.
         """
-        chaves_obrigatorias = ['cd_cnes', 'ano', 'mes', 'data']
+        chaves_obrigatorias = ['cd_cnes', 'ano', 'mes', 'dados']
         if not nome_colecao or not query:
             raise ValueError("Os parâmetros não podem estar vazios.")
         if self.validar_query(query, chaves_obrigatorias):
@@ -187,7 +187,7 @@ class dbConfig(object):
         Raises:
             Exception: Se ocorrer erro ao inserir os dados.
         """
-        if dataframe:
+        if not dataframe.empty:
             query = dataframe.to_dict(orient='records')
             try:
                 cursor = db.MongoClient(self.string_conexao)
@@ -200,7 +200,7 @@ class dbConfig(object):
                     dados_inseridos = colecao.insert_many(query)
                     numero_registros = len(dados_inseridos.inserted_ids)
                 cursor.close()
-                return numero_registros.acknowledged, str(numero_registros)
+                return dados_inseridos.acknowledged, str(numero_registros)
             except:
                 error = "Não foi possível salvar os dados devido erro interno do servidor."
                 return False, error
@@ -241,7 +241,7 @@ class dbConfig(object):
 
         return lista_metricas, lista_resultados
 
-    def busca_ultimo_mes(self, nome_colecao: str, cnes: int, ano: int, mes: int) -> list:
+    def busca_ultimo_resultado(self, nome_colecao: str, cnes: int, ano: int, mes: int) -> dict:
         """
         Recupera o mês anterior ao que está sendo consolidado.
 
@@ -252,7 +252,7 @@ class dbConfig(object):
             mes (int): Mês da consulta.
 
         Returns:
-            list: Dados do último registro encontrado.
+            dict: Dados do último registro encontrado.
 
         Raises:
             IndexError: Se não houver resultados.
@@ -265,16 +265,25 @@ class dbConfig(object):
         else:
             mes = mes-1
 
-        query = {"cd_cnes": int(cnes),"ano": int(ano),"mes": int(mes)}
+        query = {"cd_cnes": int(cnes), "ano": int(ano), "mes": int(mes)}
+        resultado = {}
+
         try:
             cursor = db.MongoClient(self.string_conexao)
             banco = cursor.get_database(self.banco)
             colecao = banco.get_collection(nome_colecao)
-            mes_anterior = colecao.find(query)
-            anterior = mes_anterior.to_list()[0]
+            resultado_anterior = colecao.find(query)
+            try:
+                ultimo_mes = resultado_anterior.to_list()[0]['dados']
+            except IndexError:
+                ultimo_mes = False
             cursor.close()
-        except IndexError:
-            return None
         except Exception as e:
             raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
-        return anterior
+
+        if not ultimo_mes:
+            resultado['0'] = None
+        else:
+            for i in ultimo_mes.keys():
+                resultado[i] = ultimo_mes[i]['valor']
+        return resultado
