@@ -131,7 +131,7 @@ class dbConfig(object):
             banco = cursor.get_database(_self.banco)
             colecao = banco.get_collection(nome_colecao)
             ultima_consolidacao = colecao.find(query, campos).sort(ordem)
-            consolidacao = ultima_consolidacao.to_list()[0]
+            consolidacao = list(ultima_consolidacao)[0]
             cursor.close()
         except IndexError:
             return None
@@ -229,11 +229,11 @@ class dbConfig(object):
             banco = cursor.get_database(_self.banco)
             colecao_resultados = banco.get_collection("resultados_kpis")
             resultados = colecao_resultados.find(query, campos)
-            lista_resultados = resultados.to_list()
+            lista_resultados = list(resultados)
 
             colecao_metricas = banco.get_collection("metricas")
             metricas = colecao_metricas.find(query, campos)
-            lista_metricas = metricas.to_list()
+            lista_metricas = list(metricas)
 
             cursor.close()
         except Exception as e:
