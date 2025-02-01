@@ -82,7 +82,7 @@ class dbConfig(object):
                 return metricas
 
     @st.cache_data(show_spinner=False)
-    def busca_empresas(_self, nome_colecao: str) -> dict:
+    def busca_empresas(_self, nome_colecao: str) -> list:
         """
         Recupera organizações ativas do banco de dados.
 
@@ -90,7 +90,7 @@ class dbConfig(object):
             nome_colecao (str): Nome da coleção MongoDB.
 
         Returns:
-            dict: Lista de organizações ativas formatadas.
+            list: Lista de organizações ativas formatadas.
 
         Raises:
             Exception: Se ocorrer erro ao recuperar os documentos.
@@ -106,6 +106,35 @@ class dbConfig(object):
         except Exception as e:
             raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
         return lista_empresas
+
+
+    @st.cache_data(show_spinner=False)
+    def busca_consolidacoes_disponiveis(_self, nome_colecao: str, cnes: int) -> tuple[list, list]:
+        """
+        Recupera anos e meses disponíveis para consolidar.
+
+        Args:
+            nome_colecao (str): Nome da coleção MongoDB.
+            cnes (int): CNES da organização.
+
+        Returns:
+            tuple: Lista de anos e lista de meses.
+
+        Raises:
+            Exception: Se ocorrer erro ao recuperar os documentos.
+        """
+        query = {"cd_cnes": int(cnes)}
+        campos = {"ano": 1, "mes": 1, "_id": 0}
+        try:
+            cursor = db.MongoClient(_self.string_conexao)
+            banco = cursor.get_database(_self.banco)
+            colecao = banco.get_collection(nome_colecao)
+            metricas = colecao.find(query, campos)
+            lista_metricas = list(metricas)
+            cursor.close()
+        except Exception as e:
+            raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
+        return list(pd.array([metrica['ano'] for metrica in lista_metricas]).unique()), [metrica['mes'] for metrica in lista_metricas]
 
     @st.cache_data(show_spinner=False)
     def busca_ultima_consolidacao(_self, nome_colecao: str, cnes: int) -> list:
@@ -194,15 +223,15 @@ class dbConfig(object):
                 banco = cursor.get_database(self.banco)
                 colecao = banco.get_collection(nome_colecao)
                 if len(query) == 1:
-                    dados_inseridos = colecao.insert_one(query)
-                    numero_registros = len(dados_inseridos.inserted_id)
+                    dados_inseridos = colecao.insert_one(query[0])
+                    numero_registros = 1
                 else:
                     dados_inseridos = colecao.insert_many(query)
                     numero_registros = len(dados_inseridos.inserted_ids)
                 cursor.close()
                 return dados_inseridos.acknowledged, str(numero_registros)
-            except:
-                error = "Não foi possível salvar os dados devido erro interno do servidor."
+            except Exception as e:
+                error = f"Não foi possível salvar os dados devido erro interno do servidor. {e}"
                 return False, error
         else:
             return False, "Dados inválidos"
@@ -241,49 +270,92 @@ class dbConfig(object):
 
         return lista_metricas, lista_resultados
 
-    def busca_ultimo_resultado(self, nome_colecao: str, cnes: int, ano: int, mes: int) -> dict:
+    def busca_ultimos_resultados(self, nome_colecao: str, cnes: int, ano_atual: int, mes_atual: int) -> list:
         """
-        Recupera o mês anterior ao que está sendo consolidado.
+        Recupera os resultados do mês que está sendo consolidado e do anterior.
 
         Args:
             nome_colecao (str): Nome da coleção MongoDB.
             cnes (int): CNES da organização.
-            ano (int): Ano da consulta.
-            mes (int): Mês da consulta.
+            ano_atual (int): Ano da consulta.
+            mes_atual (int): Mês da consulta.
 
         Returns:
-            dict: Dados do último registro encontrado.
+            list: Objetos mongoDB dos resultados dos meses encontrado.
 
         Raises:
             IndexError: Se não houver resultados.
             Exception: Se ocorrer erro ao recuperar os documentos.
         """
 
-        if mes == 1:
-            mes = 12
-            ano = ano-1
+        if mes_atual == 1:
+            mes_anterior = 12
+            ano_anterior = ano_atual-1
         else:
-            mes = mes-1
+            mes_anterior = mes_atual-1
+            ano_anterior = ano_atual
+            
+        query = {"cd_cnes": int(cnes),
+                 "$or": [ {"ano": int(ano_atual), "mes": int(mes_atual)},
+                          {"ano": int(ano_anterior), "mes": int(mes_anterior)} ]}
+        try:
+            cursor = db.MongoClient(self.string_conexao)
+            banco = cursor.get_database(self.banco)
+            colecao = banco.get_collection(nome_colecao)
+            resultado_kpis = colecao.find(query)
+            resultados = resultado_kpis.to_list()
+            cursor.close()
+            return resultados
+        except Exception as e:
+            raise Exception(f"Não foi possível recuperar o documento devido ao seguinte erro: {e}")
+        
+    def atualiza_variacao_mensal(self, nome_colecao: str, cnes: int, ano: int, mes: int, dados:list) -> tuple[bool, bool]:
+        """
+        Atualiza os resultados dos KPIs de determinado mês com o tipo de variação dos valores entre meses.
 
-        query = {"cd_cnes": int(cnes), "ano": int(ano), "mes": int(mes)}
-        resultado = {}
+        Args:
+            nome_colecao (str): Nome da coleção MongoDB.
+            cnes (int): CNES da organização.
+            ano (int): Ano da competência a ser atualizada.
+            mes (int): Mês da competência a ser atualizada.
+            dados (list): Dados a serem atualizados.
+
+        Returns:
+            list[bool,bool]: Confirmação da operação.
+
+        Raises:
+            IndexError: Se não houver resultados.
+            Exception: Se ocorrer erro ao recuperar os documentos.
+        """
+
+        # validacao
+        if len(dados) == 0:
+            return True, False
+        if len(dados) != 14:
+            raise Exception("A quantidade de dados a serem atualizados é inválida.")
+        aux_lista = []
+        for item in dados:
+            aux_lista.extend(list(item.keys()))
+        if not all(chave in pd.Series(aux_lista).unique() for chave in ['index', 'variacao']):
+            raise Exception("Os dados a serem atualizados são inválidos.")
+
+        query = {"cd_cnes": int(cnes),
+                "ano": int(ano),
+                "mes": int(mes)}
+        registros_encontrados = 0
+        registros_atualizados = 0
 
         try:
             cursor = db.MongoClient(self.string_conexao)
             banco = cursor.get_database(self.banco)
             colecao = banco.get_collection(nome_colecao)
-            resultado_anterior = colecao.find(query)
-            try:
-                ultimo_mes = resultado_anterior.to_list()[0]['dados']
-            except IndexError:
-                ultimo_mes = False
+            for i,j in enumerate(dados):
+                upd = {"$set": {f"dados.{j['index']}.variacao": int(j['variacao'])}}
+                resultado_atualizacao = colecao.update_one(query,upd)
+                registros_encontrados = registros_encontrados + resultado_atualizacao.matched_count
+                registros_atualizados = registros_atualizados + resultado_atualizacao.modified_count
             cursor.close()
+            return True, True
         except Exception as e:
-            raise Exception("Não foi possível recuperar o documento devido ao seguinte erro: ", e)
-
-        if not ultimo_mes:
-            resultado['0'] = None
-        else:
-            for i in ultimo_mes.keys():
-                resultado[i] = ultimo_mes[i]['valor']
-        return resultado
+            raise Exception(f"Não foi possível recuperar o documento devido ao seguinte erro: {e}")
+        
