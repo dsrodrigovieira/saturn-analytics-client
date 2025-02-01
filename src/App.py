@@ -342,7 +342,7 @@ class App(object):
 
         return dataframe
 
-    def monta_historico(self, dados_metricas: pd.DataFrame, dados_resultados: pd.DataFrame) -> pd.DataFrame:
+    def monta_historico(self, dados_metricas: list, dados_resultados: list) -> pd.DataFrame:
         """
         Concatena e organiza os dados históricos de métricas e resultados em um único DataFrame.
 
@@ -357,12 +357,18 @@ class App(object):
         df_resultados = self.valida_historico(dados_resultados)
 
         historico = pd.concat([df_metricas, df_resultados]).reset_index()
-        if(historico.shape[1] != 13): # TODO verificar validação das colunas
-            return None
-        else:
+        if (historico.size > 0):
+            if(historico.shape[1] != 13):
+                for i in range(12):
+                    if i > historico.columns[-1]:
+                        historico[i] = None
+                    else:
+                        pass
             historico['index'] = historico['index'].astype(str)
             historico.at[0, 'index'] = 'Enviado'
             historico.at[1, 'index'] = 'Consolidado'
             historico.columns = ["STATUS", "JAN", "FEV", "MAR", "ABR", "MAIO", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]
-            historico = historico.fillna(False)    
-            return historico
+            historico = historico.fillna(False)
+        else:
+            historico = pd.DataFrame()   
+        return historico
