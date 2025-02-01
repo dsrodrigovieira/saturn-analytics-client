@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 
 class KPI(object):
     """
@@ -162,6 +163,30 @@ class KPI(object):
         """
         dados_resultado_kpi, nome, estratificacao = self.cria_estratificacao(mascara)        
         return { nome: { "valor": dados_resultado_kpi[nome], "variacao": "", "estratificacao": estratificacao } }
+
+    def calcula_variacao_mensal(self, dados_resultado: list) -> list:
+        """
+        Calcula o tipo de variação dos valores entre meses.
+        
+        Args:
+            dados (list): Objetos mongoDB dos resultados dos meses encontrado.
+
+        Returns:
+            list: Lista com a variação de cada KPI.
+        """
+        if len(dados_resultado) < 2:
+            return []
+                
+        df_resultado = pd.DataFrame()
+        for resultado in dados_resultado:
+            ultimo_mes = resultado['dados']
+            df = pd.DataFrame(ultimo_mes).drop(['variacao','estratificacao'], axis=0).reset_index()
+            df.at[0, 'index'] = f"{resultado['ano']}-{resultado['mes']}"
+            df_resultado = pd.concat([df_resultado,df])
+        df_resultado = df_resultado.reset_index(drop=True).sort_values(by='index').T[1:]
+        df_resultado['variacao'] = df_resultado.apply(lambda x: 1 if x[1]>x[0] else 0, axis=1)
+
+        return df_resultado.reset_index()[['index', 'variacao']].to_dict(orient='records')
 
     def kpi_taxa(self, numerador: int, denominador: int) -> float:
         """
