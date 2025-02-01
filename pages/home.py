@@ -49,7 +49,7 @@ with st.empty():
         else:
             # Extrai o código CNES (identificador da organização) da seleção usando regex
             cd_cnes = re.search(r"\d+", filtro_empresa).group()
-            
+
             # Exibe um spinner enquanto os dados são carregados
             with st.spinner(text="Carregando..."):
                 # Recupera os dados de métricas e resultados do banco de dados
