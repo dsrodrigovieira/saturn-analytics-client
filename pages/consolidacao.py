@@ -18,6 +18,11 @@ if 'btn_consolidacao' in st.session_state and st.session_state.btn_consolidacao 
 else:
     st.session_state.running = False
 
+lista_empresas = db.busca_empresas("empresas")
+if 'cnes' not in st.session_state:
+    st.session_state['cnes'] = st.query_params.cnes if 'cnes' in st.query_params else None
+empresa_selecionada = [lista_empresas.index(l) for l in lista_empresas if re.search(r"\d+", l).group() == st.session_state['cnes']]
+
 # Container principal para o título da aplicação
 with st.container():    
     st.title("Consolidação de Indicadores")
@@ -27,8 +32,8 @@ with st.container():
     # Cria um dropdown para selecionar a empresa
     box_empresa = st.selectbox( placeholder="Selecione a empresa",
                                 label="Empresa:",
-                                options=db.busca_empresas(nome_colecao="empresas"),
-                                index=None )
+                                options=lista_empresas,
+                                index=empresa_selecionada[0] if empresa_selecionada else None )
     
     # Verifica se uma empresa foi selecionada
     if box_empresa:
@@ -66,6 +71,7 @@ with st.container():
                             valor_ano = st.selectbox( placeholder="Selecione o ano",
                                                       label="Ano:",
                                                       options=lista_anos,
+                                                      key='valor_ano',
                                                       index=None )
                         
                         # Dropdown para selecionar o mês
@@ -73,6 +79,7 @@ with st.container():
                             valor_mes = st.selectbox( placeholder="Selecione o mês",
                                                       label="Mês:",
                                                       options=[config.MONTH_MASK[lista_meses[i]] for i in range(len(lista_meses))],
+                                                      key='valor_mes',
                                                       index=None )     
                             
                         # Botão para iniciar a consolidação
@@ -112,12 +119,13 @@ with st.container():
                                     if all(i == True for i in status_variacao):
                                         st.info(f'Concluído!', icon="✅")
                                         db.busca_ultima_consolidacao.clear()  # Limpa o cache da função para dados atualizados
-                                        time.sleep(4)
+                                        time.sleep(2)
                                         st.rerun()
                                     elif any(i == True for i in status_variacao):
                                         st.info(f'Concluída primeira consolidação!', icon="✅")
                                         db.busca_ultima_consolidacao.clear()  # Limpa o cache da função para dados atualizados
-                                        time.sleep(4)
+                                        time.sleep(2)
                                         st.rerun()
                                     else:
                                         st.error('Ocorreu um erro!', icon="☠️")
+                                        db.busca_ultima_consolidacao.clear()  # Limpa o cache da função para dados atualizados                                        
