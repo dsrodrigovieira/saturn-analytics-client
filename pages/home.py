@@ -12,6 +12,15 @@ db = dbConfig()
 # Define o título principal da página
 st.title("Início")
 
+lista_empresas = db.busca_empresas("empresas")
+
+# Verifica se os query params foram passados na URL
+if 'cnes' not in st.session_state:
+    st.session_state['cnes'] = st.query_params.cnes if 'cnes' in st.query_params else None
+if 'ano' not in st.session_state:
+    st.session_state['ano'] = st.query_params.ano if 'ano' in st.query_params else None
+empresa_selecionada = [lista_empresas.index(l) for l in lista_empresas if re.search(r"\d+", l).group() == st.session_state['cnes']]
+
 # Cria um contêiner para organizar os elementos da interface
 with st.container():
     # Define duas colunas
@@ -29,14 +38,20 @@ with st.container():
             label="Empresa:",
             options=db.busca_empresas("empresas"),
             label_visibility="collapsed",
-            index=None
+            index=empresa_selecionada[0] if empresa_selecionada else None
         )
+
+        if 'ano' not in st.query_params:
+            index_ano = None
+        else:
+            index_ano = int(st.query_params.ano)
         
         # Segundo filtro: controle segmentado para seleção do ano
         filtro_ano = col12.segmented_control(
             "Ano",
             options=[2023, 2024],
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            default=index_ano
         )
 
 # Espaço reservado para exibir informações dinâmicas ou resultados
